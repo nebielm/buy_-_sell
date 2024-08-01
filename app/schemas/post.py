@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
-from datetime import date, datetime
+from datetime import datetime
 from enum import Enum
 
 

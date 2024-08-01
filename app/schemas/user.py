@@ -43,7 +43,7 @@ class UserCreate(UserBase):
     hashed_password: str
 
 
-class UserInDB(UserCreate):
+class UserInDBBase(UserBase):
     id: int
     created_at: datetime
 
@@ -51,6 +51,9 @@ class UserInDB(UserCreate):
         orm_mode = True
 
 
-class User(UserInDB):
+class User(UserInDBBase):
     pass
 
+
+class UserInDB(UserInDBBase):
+    hashed_password: str
