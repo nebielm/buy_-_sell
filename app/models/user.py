@@ -13,7 +13,7 @@ class User(Base):
     username = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    tel_number = Column(String, unique=True, index=True, nullable=True)
+    tel_number = Column(String, index=True, nullable=True)
     profile_picture_path = Column(String, default="laptop-4948838_1280.jpg")
     street = Column(String, index=True, nullable=False)
     house_number = Column(String, nullable=False)
@@ -22,7 +22,7 @@ class User(Base):
     country = Column(String, index=True, nullable=False)
     commercial_account = Column(Boolean, default=False)
     notification = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     account_status = Column(Boolean, default=True)
 
     posts = relationship("Post", back_populates="user")

@@ -25,7 +25,7 @@ class Post(Base):
     status = Column(SQLAlchemyEnum(StatusEnum), default=StatusEnum.AVAILABLE, nullable=False)
     show_email = Column(Boolean, default=True)
     show_tel = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     sub_category_id = Column(Integer, ForeignKey("sub_category.id"), nullable=False)
 
     user = relationship("User", back_populates="posts")

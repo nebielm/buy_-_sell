@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import date, datetime
 
 
@@ -9,34 +8,35 @@ class UserBase(BaseModel):
     birthday: date
     username: str
     email: EmailStr
-    tel_number: Optional[str] = None
-    profile_picture_path: Optional[str] = "laptop-4948838_1280.jpg"
+    tel_number: str | None = None
+    profile_picture_path: str | None = "laptop-4948838_1280.jpg"
     street: str
     house_number: str
     zip_code: str
     city_town_village: str
     country: str
-    commercial_account: Optional[bool] = False
-    notification: Optional[bool] = True
-    account_status: Optional[bool] = True
+    commercial_account: bool | None = False
+    notification: bool | None = True
+    account_status: bool | None = True
 
 
 class UserUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    birthday: Optional[date] = None
-    # username: str
-    # email: EmailStr
-    tel_number: Optional[str] = None
-    profile_picture_path: Optional[str] = None
-    street: Optional[str] = None
-    house_number: Optional[str] = None
-    zip_code: Optional[str] = None
-    city_town_village: Optional[str] = None
-    country: Optional[str] = None
-    commercial_account: Optional[bool] = None
-    notification: Optional[bool] = None
-    account_status: Optional[bool] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    birthday: date | None = None
+    username: str | None = None
+    email: EmailStr | None = None
+    tel_number: str | None = None
+    profile_picture_path: str | None = None
+    street: str | None = None
+    house_number: str | None = None
+    zip_code: str | None = None
+    city_town_village: str | None = None
+    country: str | None = None
+    commercial_account: bool | None = None
+    notification: bool | None = None
+    account_status: bool | None = None
+    hashed_password: str | None = None
 
 
 class UserCreate(UserBase):

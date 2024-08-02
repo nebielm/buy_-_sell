@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
 from enum import Enum
 
@@ -12,28 +11,28 @@ class StatusEnum(str, Enum):
 
 class PostBase(BaseModel):
     title: str
-    use_payment_option: Optional[bool] = True
+    use_payment_option: bool | None = True
     description: str
-    price: Optional[float] = 0.00
+    price: float | None = 0.00
     condition: str
-    quantity: Optional[int] = 1
-    pick_up: Optional[bool] = False
+    quantity: int | None = 1
+    pick_up: bool | None = False
     status: StatusEnum = StatusEnum.AVAILABLE
-    show_email: Optional[bool] = True
-    show_tel: Optional[bool] = True
+    show_email: bool | None = True
+    show_tel: bool | None = True
 
 
 class PostUpdate(BaseModel):
-    title: Optional[str] = None
-    use_payment_option: Optional[bool] = None
-    description: Optional[str] = None
-    price: Optional[float] = None
-    condition: Optional[str] = None
-    quantity: Optional[int] = None
-    pick_up: Optional[bool] = None
-    status: Optional[StatusEnum] = None
-    show_email: Optional[bool] = None
-    show_tel: Optional[bool] = None
+    title: str | None = None
+    use_payment_option: bool | None = None
+    description: str | None = None
+    price: float | None = None
+    condition: str | None = None
+    quantity: int | None = None
+    pick_up: bool | None = None
+    status: StatusEnum | None = None
+    show_email: bool | None = None
+    show_tel: bool | None = None
 
 
 class PostCreate(PostBase):
