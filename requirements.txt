@@ -5,3 +5,4 @@ passlib~=1.7.4
 pydantic~=2.8.2
 SQLAlchemy~=2.0.31
 python-dotenv~=1.0.1
+psycopg2-binary

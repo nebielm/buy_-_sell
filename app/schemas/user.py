@@ -36,11 +36,11 @@ class UserUpdate(BaseModel):
     commercial_account: bool | None = None
     notification: bool | None = None
     account_status: bool | None = None
-    hashed_password: str | None = None
+    password: str | None = None
 
 
 class UserCreate(UserBase):
-    hashed_password: str
+    password: str
 
 
 class UserInDBBase(UserBase):

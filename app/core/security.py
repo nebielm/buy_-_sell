@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -31,10 +31,10 @@ class TokenData(BaseModel):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-app = FastAPI()
+router = APIRouter()
 
 
-def get_password_hash(plain_password):
+def get_password_hashed(plain_password):
     return pwd_context.hash(plain_password)
 
 
@@ -91,23 +91,3 @@ async def get_current_active_user(current_user: Annotated[s_user.User, Depends(g
     if current_user.account_status:
         return current_user
     raise HTTPException(status_code=400, detail="Inactive user")
-
-
-@app.post("/token")
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                                 db: Annotated[Session, Depends(get_db)]) -> Token:
-    user = authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return Token(access_token=access_token, token_type="bearer")
-
-
-@app.get("/users/me", response_model=s_user.User)
-async def read_users_me(current_user: Annotated[s_user.User, Depends(get_current_active_user)]):
-    return current_user
