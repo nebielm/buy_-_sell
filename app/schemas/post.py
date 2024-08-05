@@ -33,10 +33,12 @@ class PostUpdate(BaseModel):
     status: StatusEnum | None = None
     show_email: bool | None = None
     show_tel: bool | None = None
+    sub_category_id: int | None = None
 
 
 class PostCreate(PostBase):
-    pass
+    user_id: int
+    sub_category_id: int
 
 
 class PostInDB(PostBase):
@@ -47,3 +49,7 @@ class PostInDB(PostBase):
 
     class Config:
         orm_mode = True
+
+
+class Post(PostInDB):
+    pass

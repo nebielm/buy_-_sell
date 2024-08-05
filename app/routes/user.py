@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Annotated
 from app.schemas import user as s_user
 from app.crud import user as c_user
 from app.database import get_db
@@ -56,10 +55,9 @@ def update_user(user_id: int,  user: s_user.UserUpdate, db: Session = Depends(ge
     return update_user(db=db, user_id=user_id, user_new=user)
 
 
-@router.delete("users/{user_id}/delete/")
+@router.delete("/users/{user_id}/delete/")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = c_user.get_user_by_id(db=db, user_id=user_id)
-    if not db_user:
+    message = delete_user(db=db, user_id=user_id)
+    if not message:
         raise HTTPException(status_code=400, detail=f"No user in DB with ID: {user_id}")
-    delete_user(db=db, user_id=user_id)
-    return {"status": "successfully deleted"}
+    return message

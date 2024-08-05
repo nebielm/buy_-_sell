@@ -15,7 +15,7 @@ def get_post_by_sub_cat(db: Session, sub_cat_id: int):
     return db.query(m_post.Post).filter(m_post.Post.sub_category_id == sub_cat_id).all()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
+def get_posts(db: Session, skip: int = 0, limit: int = 100):
     return db.query(m_post.Post).offset(skip).limit(limit).all()
 
 
@@ -43,3 +43,4 @@ def delete_post(db: Session, post_id: int):
         return None
     db.delete(db_post)
     db.commit()
+    return {"status": "successfully deleted"}
