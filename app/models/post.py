@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class StatusEnum(Enum):
+class StatusEnum(str, Enum):
     AVAILABLE = "available"
     RESERVED = "reserved"
     NOT_AVAILABLE = "not available"

@@ -11,7 +11,7 @@ from app.core.security import (ACCESS_TOKEN_EXPIRE_MINUTES, Token, create_access
 router = APIRouter()
 
 
-@router.post("/login")
+@router.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                                  db: Annotated[Session, Depends(get_db)]) -> Token:
     user = authenticate_user(db, form_data.username, form_data.password)

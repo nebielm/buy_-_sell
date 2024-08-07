@@ -31,7 +31,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     return user
 
 
-@router.get("/users/{username}/", response_model=s_user.User)
+# @router.get("/users/username/{username}/", response_model=s_user.User)
 def get_user_by_username(username: str, db: Session = Depends(get_db)):
     user = c_user.get_user_by_username(db=db, username=username)
     if not user:
@@ -39,7 +39,7 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
     return user
 
 
-@router.get("/users/{email}/", response_model=s_user.User)
+# @router.get("/users/email/{email}/", response_model=s_user.User)
 def get_user_by_email(email: str, db: Session = Depends(get_db)):
     user = c_user.get_user_by_email(db=db, user_email=email)
     if not user:

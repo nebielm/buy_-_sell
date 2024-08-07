@@ -27,7 +27,7 @@ def get_post_by_user(user_id: int, db: Session = Depends(get_db)):
     return c_post.get_post_by_user(db=db, user_id=user_id)
 
 
-@router.get("/posts/{sub_cat}/", response_model=list[s_post.Post])
+@router.get("/posts/sub_cat/{sub_cat}/", response_model=list[s_post.Post])
 def get_post_by_sub_cat(sub_cat_id: int, db: Session = Depends(get_db)):
     posts = c_post.get_post_by_sub_cat(db=db, sub_cat_id=sub_cat_id)
     if not posts:
