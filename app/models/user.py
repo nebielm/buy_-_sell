@@ -25,4 +25,13 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     account_status = Column(Boolean, default=True)
 
-    posts = relationship("Post", back_populates="user")
+    post = relationship("Post", back_populates="user")
+    sent_messages = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender")
+    received_messages = relationship("Message", foreign_keys="Message.receiver_id", back_populates="receiver")
+    watchlist_posts = relationship("WatchlistPost", back_populates="following_user")
+    following_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.following_user_id",
+                                   back_populates="following_user")
+    followed_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.followed_user_id",
+                                  back_populates="followed_user")
+    purchases = relationship("Transaction", foreign_keys="buyer_id", back_populates="buyer")
+    sales = relationship("Transaction", foreign_keys="seller_id", back_populates="seller")

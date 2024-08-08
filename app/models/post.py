@@ -1,5 +1,5 @@
 from enum import Enum
-from sqlalchemy import Enum as SQLAlchemyEnum, Column, Boolean, Float, Integer, String, ForeignKey, Date, DateTime, func
+from sqlalchemy import Enum as SQLAlchemyEnum, Column, Boolean, Float, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -26,7 +26,11 @@ class Post(Base):
     show_email = Column(Boolean, default=True)
     show_tel = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    sub_category_id = Column(Integer, ForeignKey("sub_category.id"), nullable=False)
+    sub_category_id = Column(Integer, ForeignKey("sub_categories.id"), nullable=False)
 
-    user = relationship("User", back_populates="posts")
-    sub_category = relationship("Sub_Category", back_populates="posts")
+    user = relationship("User", back_populates="post")
+    sub_category = relationship("SubCat", back_populates="post")
+    pictures = relationship("Picture", back_populates="post")
+    message = relationship("Message", back_populates="post")
+    watchlist_posts = relationship("WatchlistPost", back_populates="followed_post")
+    transactions = relationship("Transaction", back_populates="post")
