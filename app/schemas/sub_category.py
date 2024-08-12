@@ -1,34 +1,8 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from app.models.parent_category import ParentCat
-from app.models.sub_category import SubCat
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
+from pydantic import BaseModel, model_validator, Field
+from typing import Annotated
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def init_db():
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    category_mapping = {
+category_mapping = {
         "Car, Bike & Boat": [
             "Cars", "Auto Parts & Tires", "Boats & Boat Accessories", "Bicycles & Accessories",
             "Motorcycles & Scooters", "Motorcycle Parts & Accessories", "Commercial Vehicles & Trailers",
@@ -102,12 +76,48 @@ def init_db():
         ],
         "Undefined": ["Undefined"]
     }
-    if not db.query(ParentCat).first():
-        for parent_cat, sub_cats in category_mapping.items():
-            db_parent_cat = ParentCat(title=parent_cat)
-            db.add(db_parent_cat)
-            db.commit()
-            for sub_cat in sub_cats:
-                db.add(SubCat(title=sub_cat, parent_id=db_parent_cat.id))
-        db.commit()
-    db.close()
+
+
+def validate_title(title):
+    valid_titles = set()
+    for sub_cat_list in category_mapping.values():
+        for title in sub_cat_list:
+            valid_titles.add(title)
+    if title not in valid_titles:
+        raise ValueError(f"Invalid title '{title}'. Must be one of {valid_titles}")
+    return title
+
+
+class SubCatBase(BaseModel):
+    title: str | None = "Undefined"
+
+    @model_validator(mode='before')
+    def check_valid_title(cls, values):
+        title = values.get('title')
+        return validate_title(title)
+
+
+class SubCatUpdate(BaseModel):
+    title: str
+    parent_id: Annotated[int, Field(gt=0)]
+
+    @model_validator(mode='before')
+    def check_valid_title(cls, values):
+        title = values.get('title')
+        return validate_title(title)
+
+
+class SubCatCreate(SubCatBase):
+    parent_id: Annotated[int, Field(gt=0)]
+
+
+class SubCatInDB(SubCatBase):
+    id: int
+    parent_id: Annotated[int, Field(gt=0)]
+
+    class Config:
+        orm_mode = True
+
+
+class SubCat(SubCatInDB):
+    pass
