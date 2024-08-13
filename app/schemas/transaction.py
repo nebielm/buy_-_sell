@@ -18,11 +18,7 @@ class TransactionBase(BaseModel):
 class TransactionUpdate(BaseModel):
     price: float | None = None
     quantity: int | None = None
-
-
-class TransactionSpecialUpdate(TransactionUpdate):
-    status: StatusEnum
-    last_status_change: datetime
+    status: StatusEnum | None = None
 
 
 class TransactionCreate(TransactionBase):

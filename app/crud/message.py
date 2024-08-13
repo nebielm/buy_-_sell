@@ -32,7 +32,7 @@ def create_message(db: Session, message: s_message.MessageCreate):
 
 
 def update_message(db: Session, message_id: int, new_message: s_message.MessageUpdate):
-    db_message = get_message_by_id(db, message_id)
+    db_message = get_message_by_id(db=db, message_id=message_id)
     if not db_message:
         return None
     db_message.message = new_message.message
@@ -42,7 +42,7 @@ def update_message(db: Session, message_id: int, new_message: s_message.MessageU
 
 
 def delete_message(db: Session, message_id: int):
-    db_message = get_message_by_id(db, message_id)
+    db_message = get_message_by_id(db=db, message_id=message_id)
     if not db_message:
         return None
     db.delete(db_message)
