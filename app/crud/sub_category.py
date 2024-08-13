@@ -22,8 +22,7 @@ def get_sub_cats(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_sub_cat(db: Session, sub_cat: s_sub_cat.SubCatCreate):
-    existing_cat = get_sub_cat_by_title(db=db, title=sub_cat.title)
-    if existing_cat:
+    if get_sub_cat_by_title(db=db, title=sub_cat.title):
         return None
     db_sub_cat = m_sub_cat.SubCat(**sub_cat.model_dump())
     db.add(db_sub_cat)
@@ -35,6 +34,9 @@ def create_sub_cat(db: Session, sub_cat: s_sub_cat.SubCatCreate):
 def update_sub_cat(db: Session, sub_cat_id: int, new_sub_cat: s_sub_cat.SubCatUpdate):
     db_sub_cat = get_sub_cat_by_id(db=db, sub_cat_id=sub_cat_id)
     if not db_sub_cat:
+        return None
+    existing_cat = get_sub_cat_by_title(db=db, title=new_sub_cat.title)
+    if existing_cat and existing_cat.id != sub_cat_id:
         return None
     db_sub_cat.title = new_sub_cat.title
     db.commit()

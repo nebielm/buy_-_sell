@@ -54,7 +54,7 @@ def init_db():
             "Neighbourhood Help"
         ],
         "Services": [
-            "Elderly Care", "Car, Bike & Boat", "Babysitter & Child Care", "Artist & Musician",
+            "Elder Care", "Car, Bike & Boat", "Babysitter & Nanny", "Musician & Artist",
             "Travel & Event", "Animal Care & Training", "Moving & Transport", "Other Services"
         ],
         "Family, Child & Baby": [
@@ -71,7 +71,7 @@ def init_db():
             "Men's Shoes", "Bags & Accessories", "Watches & Jewelry", "Other Fashion & Beauty"
         ],
         "Lessons & Courses": [
-            "Beauty & Health", "Computer Courses", "Esoteric & Spiritual", "Cooking & Baking",
+            "Health & Beauty", "Computer Courses", "Esoteric & Spiritual", "Cooking & Baking",
             "Art & Design", "Music & Singing", "Tutoring", "Sports Courses",
             "Language Courses", "Dance Courses", "Further Education", "Other Lessons & Courses"
         ],

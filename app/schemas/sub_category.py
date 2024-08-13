@@ -1,5 +1,4 @@
-from pydantic import BaseModel, model_validator, Field
-from typing import Annotated
+from pydantic import BaseModel, model_validator
 from app.database import get_db
 from app.crud.parent_category import get_parent_cat_by_title
 
@@ -32,7 +31,7 @@ category_mapping = {
             "Neighbourhood Help"
         ],
         get_parent_cat_by_title(db=db, title="Services").id: [
-            "Elderly Care", "Car, Bike & Boat", "Babysitter & Child Care", "Artist & Musician",
+            "Elder Care", "Car, Bike & Boat", "Babysitter & Nanny", "Musician & Artist",
             "Travel & Event", "Animal Care & Training", "Moving & Transport", "Other Services"
         ],
         get_parent_cat_by_title(db=db, title="Family, Child & Baby").id: [
@@ -49,7 +48,7 @@ category_mapping = {
             "Men's Shoes", "Bags & Accessories", "Watches & Jewelry", "Other Fashion & Beauty"
         ],
         get_parent_cat_by_title(db=db, title="Lessons & Courses").id: [
-            "Beauty & Health", "Computer Courses", "Esoteric & Spiritual", "Cooking & Baking",
+            "Health & Beauty", "Computer Courses", "Esoteric & Spiritual", "Cooking & Baking",
             "Art & Design", "Music & Singing", "Tutoring", "Sports Courses",
             "Language Courses", "Dance Courses", "Further Education", "Other Lessons & Courses"
         ],
