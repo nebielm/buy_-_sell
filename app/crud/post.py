@@ -34,6 +34,7 @@ def update_post(db: Session, post_id: int, post_new: s_post.PostUpdate):
     for attr, value in post_new.model_dump(exclude_unset=True).items():
         setattr(db_post, attr, value)
     db.commit()
+    db.refresh(db_post)
     return db_post
 
 

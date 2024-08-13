@@ -44,6 +44,7 @@ def update_user(db: Session, user_id: int,  user_new: s_user.UserUpdate):
     for attr, value in user_data.items():
         setattr(db_user, attr, value)
     db.commit()
+    db.refresh(db_user)
     return db_user
 
 

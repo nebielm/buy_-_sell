@@ -5,7 +5,7 @@ class MessageBase(BaseModel):
     message: str
 
 
-class UpdateMessage(BaseModel):
+class MessageUpdate(BaseModel):
     message: str
 
 
