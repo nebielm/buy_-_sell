@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Boolean, Integer, String, Date, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.models.watchlist_post import WatchlistPost
+from app.models.watchlist_user import WatchlistUser
+from app.models.transaction import Transaction
 
 
 class User(Base):
@@ -28,10 +31,11 @@ class User(Base):
     post = relationship("Post", back_populates="user")
     sent_messages = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender")
     received_messages = relationship("Message", foreign_keys="Message.receiver_id", back_populates="receiver")
-    watchlist_posts = relationship("WatchlistPost", back_populates="following_user")
+    watchlist_posts = relationship("WatchlistPost", foreign_keys="WatchlistPost.following_user_id",
+                                   back_populates="following_user")
     following_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.following_user_id",
                                    back_populates="following_user")
     followed_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.followed_user_id",
                                   back_populates="followed_user")
-    purchases = relationship("Transaction", foreign_keys="buyer_id", back_populates="buyer")
-    sales = relationship("Transaction", foreign_keys="seller_id", back_populates="seller")
+    purchases = relationship("Transaction", foreign_keys="Transaction.buyer_id", back_populates="buyer")
+    sales = relationship("Transaction", foreign_keys="Transaction.seller_id", back_populates="seller")

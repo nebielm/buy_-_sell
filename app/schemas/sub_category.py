@@ -32,7 +32,7 @@ category_mapping = {
         ],
         get_parent_cat_by_title(db=db, title="Services").id: [
             "Elder Care", "Car, Bike & Boat", "Babysitter & Nanny", "Musician & Artist",
-            "Travel & Event", "Animal Care & Training", "Moving & Transport", "Other Services"
+            "Travel & Event", "Animal Care & Training", "Transport & Moving", "Other Services"
         ],
         get_parent_cat_by_title(db=db, title="Family, Child & Baby").id: [
             "Elderly Care", "Baby & Children's Clothing", "Baby & Children's Shoes",
@@ -41,7 +41,7 @@ category_mapping = {
         ],
         get_parent_cat_by_title(db=db, title="Pets").id: [
             "Fish", "Dogs", "Cats", "Small Animals", "Livestock", "Horses",
-            "Animal Care & Training", "Missing Animals", "Birds", "Accessories"
+            "Animal Training & Care", "Missing Animals", "Birds", "Accessories"
         ],
         get_parent_cat_by_title(db=db, title="Fashion & Beauty").id: [
             "Beauty & Health", "Women's Clothing", "Women's Shoes", "Men's Clothing",

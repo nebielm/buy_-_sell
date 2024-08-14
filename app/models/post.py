@@ -2,6 +2,7 @@ from enum import Enum
 from sqlalchemy import Enum as SQLAlchemyEnum, Column, Boolean, Float, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.models.pictures import Picture
 
 
 class StatusEnum(str, Enum):
@@ -31,6 +32,6 @@ class Post(Base):
     user = relationship("User", back_populates="post")
     sub_category = relationship("SubCat", back_populates="post")
     pictures = relationship("Picture", back_populates="post")
-    message = relationship("Message", back_populates="post")
+    messages = relationship("Message", back_populates="post")
     watchlist_posts = relationship("WatchlistPost", back_populates="followed_post")
     transactions = relationship("Transaction", back_populates="post")

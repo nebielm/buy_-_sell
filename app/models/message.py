@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -11,6 +11,8 @@ class Message(Base):
     receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
     message = Column(String, nullable=False)
+    last_message_change = Column(DateTime(timezone=True), server_default=func.now(),
+                                 onupdate=func.now(), nullable=False)
 
     post = relationship("Post", back_populates="messages")
     sender = relationship("User", foreign_keys=[sender_id], back_populates="sent_messages")
