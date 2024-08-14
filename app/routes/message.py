@@ -15,7 +15,7 @@ def create_message(user_id: int, post_id: int, message: s_message.MessageCreate,
                    current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id or user_id != message.sender_id:
         raise HTTPException(status_code=400,
-                            detail="User ID in the request body does not match the URL path user ID or "
+                            detail="Authentication failed or "
                                    "User ID is not the Sender.")
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
@@ -36,7 +36,7 @@ def get_my_messages_by_post(user_id: int, post_id: int, db: Session = Depends(ge
                             current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
         raise HTTPException(status_code=400,
-                            detail="User ID in the request body does not match the URL path user ID")
+                            detail="Authentication failed")
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -58,7 +58,7 @@ def get_all_my_messages(user_id: int, db: Session = Depends(get_db),
                         current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
         raise HTTPException(status_code=400,
-                            detail="User ID in the request body does not match the URL path user ID")
+                            detail="Authentication failed")
     sent_messages = c_message.get_message_by_sender_id(db=db, sender_id=user_id)
     received_messages = c_message.get_message_by_receiver_id(db=db, receiver_id=user_id)
     if query == "sent":
@@ -74,7 +74,7 @@ def update_message(user_id: int, message_id: int, new_message: s_message.Message
                    db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
         raise HTTPException(status_code=400,
-                            detail="User ID in the request body does not match the URL path user ID")
+                            detail="Authentication failed")
     db_message = c_message.get_message_by_id(db=db, message_id=message_id)
     if db_message.sender_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
@@ -93,7 +93,7 @@ def delete_message(user_id: int, message_id: int, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
         raise HTTPException(status_code=400,
-                            detail="User ID in the request body does not match the URL path user ID")
+                            detail="Authentication failed")
     db_message = c_message.get_message_by_id(db=db, message_id=message_id)
     if db_message.sender_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
