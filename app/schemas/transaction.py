@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class StatusEnum(str, Enum):
+class TStatusEnum(str, Enum):
     IN_PROGRESS = "in_progress"
     SUCCESSFUL = "successful"
     DECLINED = "declined"
@@ -12,13 +12,13 @@ class StatusEnum(str, Enum):
 class TransactionBase(BaseModel):
     price: float | None = 1.00
     quantity: int | None = 1
-    status: StatusEnum | None = StatusEnum.IN_PROGRESS
+    status: TStatusEnum | None = TStatusEnum.IN_PROGRESS
 
 
 class TransactionUpdate(BaseModel):
     price: float | None = None
     quantity: int | None = None
-    status: StatusEnum | None = None
+    status: TStatusEnum | None = None
 
 
 class TransactionCreate(TransactionBase):

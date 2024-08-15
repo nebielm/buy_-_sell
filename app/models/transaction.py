@@ -5,7 +5,7 @@ from sqlalchemy.event import listens_for
 from app.database import Base
 
 
-class StatusEnum(str, Enum):
+class TStatusEnum(str, Enum):
     IN_PROGRESS = "in_progress"
     SUCCESSFUL = "successful"
     DECLINED = "declined"
@@ -20,7 +20,7 @@ class Transaction(Base):
     post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
     price = Column(Float, default=1.00, nullable=False)
     quantity = Column(Integer, default=1, nullable=False)
-    status = Column(SQLAlchemyEnum(StatusEnum), default=StatusEnum.IN_PROGRESS, nullable=False)
+    status = Column(SQLAlchemyEnum(TStatusEnum), default=TStatusEnum.IN_PROGRESS, nullable=False)
     last_status_change = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     buyer = relationship("User", foreign_keys=[buyer_id], back_populates="purchases")

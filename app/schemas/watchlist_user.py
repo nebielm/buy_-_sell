@@ -23,5 +23,5 @@ class WatchUserInDB(WatchUserBase):
         orm_mode = True
 
 
-class WatchPost(WatchUserInDB):
+class WatchUser(WatchUserInDB):
     pass
