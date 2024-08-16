@@ -61,8 +61,8 @@ def get_watchlist_post_by_following_user(user_id: int, db: Session = Depends(get
 
 
 @router.get("/user/{user_id}/watchlist/{watch_post_id}/", response_model=s_watch_post.WatchPost)
-def get_watchlist_post_by_watch_post_id(user_id: int, watch_post_id: int, db: Session = Depends(get_db),
-                                        current_user: m_user.User = Depends(get_current_user)):
+def get_watch_post_record_by_watch_post_id(user_id: int, watch_post_id: int, db: Session = Depends(get_db),
+                                           current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Authentication failed")
@@ -71,20 +71,6 @@ def get_watchlist_post_by_watch_post_id(user_id: int, watch_post_id: int, db: Se
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Nobody or User does not follow this post")
     return db_watch_post
-
-
-@router.put("/user/{user_id}/watchlist/{watch_post_id}/", response_model=s_watch_post.WatchPost)
-# Does not update, because not intended but existing record is returned
-def does_not_update_watch_post_record(user_id: int, watch_post_id: int, db: Session = Depends(get_db),
-                                      current_user: m_user.User = Depends(get_current_user)):
-    if user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Authentication failed")
-    db_watch_post = c_watch_post.get_watchlist_post_by_id(db=db, watch_post_id=watch_post_id)
-    if not db_watch_post or user_id != db_watch_post.following_user_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Nobody or User does not follow this post")
-    return c_watch_post.update_watchlist_post(db=db, watch_post_id=watch_post_id)
 
 
 @router.delete("/user/{user_id}/watchlist/{watch_post_id}/")

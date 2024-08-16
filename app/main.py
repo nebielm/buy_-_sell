@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import engine, Base, get_db
-from app.routes import auth, user, post, message, pictures, transaction, watchlist_post
+from app.routes import auth, user, post, message, pictures, transaction, watchlist_post, watchlist_user
 from app.models.parent_category import ParentCat
 from app.models.sub_category import SubCat
 
@@ -106,3 +106,4 @@ app.include_router(message.router)
 app.include_router(pictures.router)
 app.include_router(transaction.router)
 app.include_router(watchlist_post.router)
+app.include_router(watchlist_user.router)
