@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Annotated
 
 
@@ -32,8 +32,7 @@ class PictureInDB(PictureBase):
     id: int
     post_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Picture(PictureInDB):

@@ -17,7 +17,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     tel_number = Column(String, index=True, nullable=True)
-    profile_picture_path = Column(String, default="laptop-4948838_1280.jpg")
+    profile_picture_path = Column(String, default="https://buysellusers.s3.eu-north-1.amazonaws.com/default.jpg")
     street = Column(String, index=True, nullable=False)
     house_number = Column(String, nullable=False)
     zip_code = Column(String, index=True, nullable=False)

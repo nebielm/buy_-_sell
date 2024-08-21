@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from enum import Enum
 
 
@@ -36,8 +36,7 @@ class ParentCatCreate(ParentCatBase):
 class ParentCatInDB(ParentCatBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class ParentCat(ParentCatInDB):

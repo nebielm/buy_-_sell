@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class WatchPostBase(BaseModel):
@@ -19,8 +19,7 @@ class WatchPostInDB(WatchPostBase):
     following_user_id: int
     followed_post_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class WatchPost(WatchPostInDB):

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, ConfigDict
 from app.database import get_db
 from app.crud.parent_category import get_parent_cat_by_title
 
@@ -143,8 +143,7 @@ class SubCatInDB(SubCatBase):
         sub_cat_title = values.get('title')
         return validate_parent_id(sub_cat_title, parent_id)
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class SubCat(SubCatInDB):

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from enum import Enum
 
@@ -47,8 +47,7 @@ class PostInDB(PostBase):
     created_at: datetime
     sub_category_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Post(PostInDB):

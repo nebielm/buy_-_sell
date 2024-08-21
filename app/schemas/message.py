@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 
@@ -23,8 +23,7 @@ class MessageInDB(MessageBase):
     post_id: int
     last_message_change: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Message(MessageInDB):

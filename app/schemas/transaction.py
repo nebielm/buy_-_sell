@@ -1,6 +1,6 @@
 from enum import Enum
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class TStatusEnum(str, Enum):
@@ -34,8 +34,7 @@ class TransactionInDB(TransactionBase):
     post_id: int
     last_status_change: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Transaction(TransactionInDB):
