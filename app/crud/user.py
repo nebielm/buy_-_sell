@@ -39,10 +39,12 @@ def update_user(db: Session, user_id: int,  user_new: s_user.UserUpdate):
         return None
     user_data = user_new.model_dump(exclude_unset=True)
     if "password" in user_data:
-        user_data["hashed_password"] = get_password_hashed(user_data["password"])
-        user_data.pop("password")
+        if user_data["password"] is not None:
+            user_data["hashed_password"] = get_password_hashed(user_data["password"])
+        user_data.pop("password", None)
     for attr, value in user_data.items():
-        setattr(db_user, attr, value)
+        if value:
+            setattr(db_user, attr, value)
     db.commit()
     db.refresh(db_user)
     return db_user

@@ -10,7 +10,7 @@ from app.database import get_db
 router = APIRouter()
 
 
-@router.post("/users/{user_id}/post/{post_id}/picture/", response_model=s_picture.Picture)
+# @router.post("/users/{user_id}/post/{post_id}/picture/", response_model=s_picture.Picture)
 def create_picture(user_id: int, post_id: int, picture: s_picture.PictureCreate, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
@@ -41,7 +41,7 @@ def get_picture_by_id(picture_id: int, db: Session = Depends(get_db)):
     return db_picture
 
 
-@router.put("/users/{user_id}/picture/{picture_id}/", response_model=s_picture.Picture)
+# @router.put("/users/{user_id}/picture/{picture_id}/", response_model=s_picture.Picture)
 def update_picture(user_id: int, picture_id: int, new_picture: s_picture.PictureUpdate,
                    db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
@@ -61,7 +61,7 @@ def update_picture(user_id: int, picture_id: int, new_picture: s_picture.Picture
     return c_picture.update_picture(db=db, picture_id=picture_id, new_picture=new_picture)
 
 
-@router.delete("/users/{user_id}/picture/{picture_id}/")
+# @router.delete("/users/{user_id}/picture/{picture_id}/")
 def delete_picture(user_id: int, picture_id: int, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:

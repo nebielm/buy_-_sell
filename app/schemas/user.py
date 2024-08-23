@@ -9,7 +9,6 @@ class UserBase(BaseModel):
     username: str
     email: EmailStr
     tel_number: str | None = None
-    profile_picture_path: str | None = "laptop-4948838_1280.jpg"
     street: str
     house_number: str
     zip_code: str
@@ -20,14 +19,13 @@ class UserBase(BaseModel):
     account_status: bool | None = True
 
 
-class UserUpdate(BaseModel):
+class UserUpdateBase(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     birthday: date | None = None
     username: str | None = None
     email: EmailStr | None = None
     tel_number: str | None = None
-    profile_picture_path: str | None = None
     street: str | None = None
     house_number: str | None = None
     zip_code: str | None = None
@@ -39,13 +37,19 @@ class UserUpdate(BaseModel):
     password: str | None = None
 
 
+class UserUpdate(UserUpdateBase):
+    profile_picture_path: str | None = None
+
+
 class UserCreate(UserBase):
     password: str
+    profile_picture_path: str | None = "https://buysellusers.s3.eu-north-1.amazonaws.com/default.jpg"
 
 
 class UserInDBBase(UserBase):
     id: int
     created_at: datetime
+    profile_picture_path: str
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
