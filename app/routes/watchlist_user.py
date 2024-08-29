@@ -12,17 +12,16 @@ router = APIRouter()
 
 @router.post("/following_user/{following_user_id}/watchlist/followed_user/{followed_user_id}/",
              response_model=s_watch_user.WatchUser)
-def create_watch_user_record(following_user_id: int, followed_user_id: int, watch_user: s_watch_user.WatchUserCreate,
+def create_watch_user_record(following_user_id: int, followed_user_id: int,
                              db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
-    if following_user_id != current_user.id or following_user_id != watch_user.following_user_id:
+    if following_user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Authentication failed or "
-                                   "Following User ID  in URL does not match the Following User ID in Request Body.")
+                            detail="Authentication failed")
     db_user = c_user.get_user_by_id(db=db, user_id=followed_user_id)
-    if not db_user or db_user.id != watch_user.followed_user_id:
+    if not db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Followed user does not exist or "
-                                   "Followed_user_id in URL does not match the Followed_user_id in Request Body.")
+                            detail="Followed user does not exist")
+    watch_user = s_watch_user.WatchUserCreate(following_user_id=following_user_id, followed_user_id=followed_user_id)
     db_watch_user = c_watch_user.create_watchlist_user(db=db, watch_user=watch_user)
     if not db_watch_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,

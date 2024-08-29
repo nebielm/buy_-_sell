@@ -1,9 +1,6 @@
 from sqlalchemy import Column, Boolean, Integer, String, Date, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
-from app.models.watchlist_post import WatchlistPost
-from app.models.watchlist_user import WatchlistUser
-from app.models.transaction import Transaction
 
 
 class User(Base):
@@ -28,14 +25,18 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     account_status = Column(Boolean, default=True)
 
-    post = relationship("Post", back_populates="user")
-    sent_messages = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender")
-    received_messages = relationship("Message", foreign_keys="Message.receiver_id", back_populates="receiver")
+    post = relationship("Post", back_populates="user", cascade="all, delete-orphan")
+    sent_messages = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender",
+                                 cascade="all, delete-orphan")
+    received_messages = relationship("Message", foreign_keys="Message.receiver_id", back_populates="receiver",
+                                     cascade="all, delete-orphan")
     watchlist_posts = relationship("WatchlistPost", foreign_keys="WatchlistPost.following_user_id",
-                                   back_populates="following_user")
+                                   back_populates="following_user", cascade="all, delete-orphan")
     following_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.following_user_id",
-                                   back_populates="following_user")
+                                   back_populates="following_user", cascade="all, delete-orphan")
     followed_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.followed_user_id",
-                                  back_populates="followed_user")
-    purchases = relationship("Transaction", foreign_keys="Transaction.buyer_id", back_populates="buyer")
-    sales = relationship("Transaction", foreign_keys="Transaction.seller_id", back_populates="seller")
+                                  back_populates="followed_user", cascade="all, delete-orphan")
+    purchases = relationship("Transaction", foreign_keys="Transaction.buyer_id", back_populates="buyer",
+                             cascade="all, delete-orphan")
+    sales = relationship("Transaction", foreign_keys="Transaction.seller_id", back_populates="seller",
+                         cascade="all, delete-orphan")

@@ -11,17 +11,16 @@ router = APIRouter()
 
 
 @router.post("/user/{user_id}/watchlist/post/{post_id}/", response_model=s_watch_post.WatchPost)
-def create_watch_post_record(user_id: int, post_id: int, watch_post: s_watch_post.WatchPostCreate,
-                             db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
-    if user_id != current_user.id or user_id != watch_post.following_user_id:
+def create_watch_post_record(user_id: int, post_id: int, db: Session = Depends(get_db),
+                             current_user: m_user.User = Depends(get_current_user)):
+    if user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Authentication failed or "
-                                   "User ID  in URL does not match the following User ID in Request Body.")
+                            detail="Authentication failed or")
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
-    if not db_post or post_id != watch_post.followed_post_id:
+    if not db_post:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Post with given Post_id does not exist or "
-                                   "Post_ID in URL does not match the followed Post ID in Request Body.")
+                            detail="Post with given Post_id does not exist")
+    watch_post = s_watch_post.WatchPostCreate(following_user_id=user_id, followed_post_id=post_id)
     db_watch_post = c_watch_post.create_watchlist_post(db=db, watch_post=watch_post)
     if not db_watch_post:
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
