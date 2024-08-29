@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.security import get_current_user
 from app.schemas import post as s_post
+from app.schemas import pictures as s_pictures
 from app.models import user as m_user
 from app.crud import post as c_post
 from app.crud import user as c_user
+from app.crud import pictures as c_pictures
+from app.routes.utils import delete_image_from_s3
 from app.database import get_db
 
 router = APIRouter()
@@ -17,7 +20,12 @@ def create_post(user_id: int, post: s_post.PostCreate, db: Session = Depends(get
         raise HTTPException(status_code=400, detail="User ID in the request body does not match the URL path user ID")
     post_data = post.model_dump()
     post_data["user_id"] = user_id
-    return c_post.create_post(db=db, post=s_post.PostCreate(**post_data))
+    db_post = c_post.create_post(db=db, post=s_post.PostCreate(**post_data))
+    default_pic_link = ("https://buysellpostpics.s3.amazonaws.com/01919976-385e-7a60-8eeb-7ab00c13e0cf_"
+                        "28_08_2024_16_49_07_default_post_pic.jpg")
+    default_picture = s_pictures.PictureCreate(image_path=default_pic_link, post_id=db_post.id)
+    c_pictures.create_picture(db=db, picture=default_picture)
+    return db_post
 
 
 @router.get("/users/{user_id}/posts/", response_model=list[s_post.Post])
@@ -66,4 +74,11 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: m_use
         raise HTTPException(status_code=404, detail="Post not found")
     if current_user.id != db_post.user_id:
         raise HTTPException(status_code=403, detail="Authentication failed")
+    post_pictures = c_pictures.get_picture_by_post_id(db=db, post_id=post_id)
+    if post_pictures:
+        for picture in post_pictures:
+            image_name = picture.image_path.split("/")[-1]
+            if "default_post_pic.jpg" not in image_name:
+                delete_image_from_s3(object_name=picture.image_path, bucket_name='buysellpostpics')
+            c_pictures.delete_picture(db=db, picture_id=picture.id)
     return c_post.delete_post(db=db, post_id=post_id)

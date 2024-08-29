@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from app.database import engine, Base, get_db
-from app.routes import auth, user, post, message, pictures, transaction, watchlist_post, watchlist_user, test
+from app.routes import auth, user, post, message, pictures, transaction, watchlist_post, watchlist_user
 from app.models.parent_category import ParentCat
 from app.models.sub_category import SubCat
-
 from app.core.settings import OPENAPI_SCHEMA
 
 app = FastAPI(openapi_schema=OPENAPI_SCHEMA)
@@ -107,4 +106,3 @@ app.include_router(pictures.router)
 app.include_router(transaction.router)
 app.include_router(watchlist_post.router)
 app.include_router(watchlist_user.router)
-app.include_router(test.router)

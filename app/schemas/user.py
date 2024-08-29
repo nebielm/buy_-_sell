@@ -8,7 +8,7 @@ class UserBase(BaseModel):
     birthday: date
     username: str
     email: EmailStr
-    tel_number: str | None = None
+    tel_number: str
     street: str
     house_number: str
     zip_code: str
@@ -38,12 +38,15 @@ class UserUpdateBase(BaseModel):
 
 
 class UserUpdate(UserUpdateBase):
-    profile_picture_path: str | None = None
+    profile_picture_path: str
 
 
-class UserCreate(UserBase):
+class UserCreateBase(UserBase):
     password: str
-    profile_picture_path: str | None = "https://buysellusers.s3.eu-north-1.amazonaws.com/default.jpg"
+
+
+class UserCreate(UserCreateBase):
+    profile_picture_path: str
 
 
 class UserInDBBase(UserBase):
