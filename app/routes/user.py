@@ -86,7 +86,7 @@ def update_user(user_id: int, image: Annotated[UploadFile, File()] = None,
     if image:
         image_name = current_user.profile_picture_path.split("/")[-1]
         if "default_profile_pic.jpg" not in image_name:
-            utils.delete_image_from_s3(image_name, bucket_name=BUCKET_NAME_PROFILE_PIC)
+            utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME_PROFILE_PIC)
         download_link = utils.upload_file(local_file=image, bucket_name=BUCKET_NAME_PROFILE_PIC)
         user_dict = user.model_dump()
         user_dict['profile_picture_path'] = download_link
@@ -100,7 +100,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: m_use
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed")
     image_name = current_user.profile_picture_path.split("/")[-1]
     if "default_profile_pic.jpg" not in image_name:
-        utils.delete_image_from_s3(image_name, bucket_name=BUCKET_NAME_PROFILE_PIC)
+        utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME_PROFILE_PIC)
     user_posts = c_post.get_post_by_user(db=db, user_id=user_id)
     if user_posts:
         for post in user_posts:
@@ -109,7 +109,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: m_use
                 for picture in post_pictures:
                     image_name = picture.image_path.split("/")[-1]
                     if "default_post_pic.jpg" not in image_name:
-                        utils.delete_image_from_s3(object_name=picture.image_path, bucket_name=BUCKET_NAME_POST_PIC)
+                        utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME_POST_PIC)
     message = c_user.delete_user(db=db, user_id=user_id)
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No user in DB with ID: {user_id}")

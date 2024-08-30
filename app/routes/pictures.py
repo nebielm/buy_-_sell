@@ -109,7 +109,7 @@ def delete_picture(user_id: int, picture_id: int,
                                  "28_08_2024_16_49_07_default_post_pic.jpg")
         default_picture = s_picture.PictureUpdate(image_path=default_download_link)
         c_picture.update_picture(db=db, picture_id=picture_id, new_picture=default_picture)
-        utils.delete_image_from_s3(object_name=image_name, bucket_name='buysellpostpics')
+        utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME)
         return {"message": "Picture gets updated to default because last picture from Post"}
     if "default_post_pic.jpg" not in image_name and len(db_post_pictures) > 1:
         utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME)

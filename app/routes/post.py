@@ -85,5 +85,5 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: m_use
         for picture in post_pictures:
             image_name = picture.image_path.split("/")[-1]
             if "default_post_pic.jpg" not in image_name:
-                delete_image_from_s3(object_name=picture.image_path, bucket_name=BUCKET_NAME)
+                delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME)
     return c_post.delete_post(db=db, post_id=post_id)
