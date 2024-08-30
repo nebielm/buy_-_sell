@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.security import get_current_user
@@ -11,6 +13,10 @@ from app.routes.utils import delete_image_from_s3
 from app.database import get_db
 
 router = APIRouter()
+
+load_dotenv()
+
+BUCKET_NAME = os.getenv("BUCKET_NAME_POST_PIC")
 
 
 @router.post("/users/{user_id}/posts/", response_model=s_post.Post)
@@ -79,5 +85,5 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: m_use
         for picture in post_pictures:
             image_name = picture.image_path.split("/")[-1]
             if "default_post_pic.jpg" not in image_name:
-                delete_image_from_s3(object_name=picture.image_path, bucket_name='buysellpostpics')
+                delete_image_from_s3(object_name=picture.image_path, bucket_name=BUCKET_NAME)
     return c_post.delete_post(db=db, post_id=post_id)

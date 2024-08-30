@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/following_user/{following_user_id}/watchlist/followed_user/{followed_user_id}/",
              response_model=s_watch_user.WatchUser)
-def create_watch_user_record(following_user_id: int, followed_user_id: int,db: Session = Depends(get_db),
+def create_watch_user_record(following_user_id: int, followed_user_id: int, db: Session = Depends(get_db),
                              current_user: m_user.User = Depends(get_current_user)):
     if following_user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

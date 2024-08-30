@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -10,6 +12,10 @@ from app.database import get_db
 from app.routes import utils
 
 router = APIRouter()
+
+load_dotenv()
+
+BUCKET_NAME = os.getenv("BUCKET_NAME_POST_PIC")
 
 
 @router.post("/users/{user_id}/post/{post_id}/picture/", response_model=s_picture.Picture)
@@ -24,7 +30,7 @@ def create_picture(image: Annotated[UploadFile, File()],
     if user_id != current_user.id or user_id != db_post.user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Authentication failed or User ID in URL Path does not belong to Post")
-    download_link = utils.upload_file(local_file=image, bucket_name='buysellpostpics')
+    download_link = utils.upload_file(local_file=image, bucket_name=BUCKET_NAME)
     picture = s_picture.PictureCreate(image_path=download_link, post_id=post_id)
     post_pictures = c_picture.get_picture_by_post_id(db=db, post_id=post_id)
     if post_pictures:
@@ -70,8 +76,8 @@ def update_picture(image: Annotated[UploadFile, File()],
                             detail="User ID in URL does not belong to Picture")
     image_name = db_picture.image_path.split("/")[-1]
     if "default_post_pic.jpg" not in image_name:
-        utils.delete_image_from_s3(object_name=image_name, bucket_name='buysellpostpics')
-    download_link = utils.upload_file(local_file=image, bucket_name='buysellpostpics')
+        utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME)
+    download_link = utils.upload_file(local_file=image, bucket_name=BUCKET_NAME)
     new_picture = s_picture.PictureUpdate(image_path=download_link)
     return c_picture.update_picture(db=db, picture_id=picture_id, new_picture=new_picture)
 
@@ -106,5 +112,5 @@ def delete_picture(user_id: int, picture_id: int,
         utils.delete_image_from_s3(object_name=image_name, bucket_name='buysellpostpics')
         return {"message": "Picture gets updated to default because last picture from Post"}
     if "default_post_pic.jpg" not in image_name and len(db_post_pictures) > 1:
-        utils.delete_image_from_s3(object_name=image_name, bucket_name='buysellpostpics')
+        utils.delete_image_from_s3(object_name=image_name, bucket_name=BUCKET_NAME)
         return c_picture.delete_picture(db=db, picture_id=picture_id)
