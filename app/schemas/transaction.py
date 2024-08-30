@@ -21,10 +21,14 @@ class TransactionUpdate(BaseModel):
     status: TStatusEnum | None = None
 
 
-class TransactionCreate(TransactionBase):
+class TransactionCreateBase(TransactionBase):
+    pass
+
+
+class TransactionCreate(TransactionCreateBase):
     buyer_id: int
-    seller_id: int
     post_id: int
+    seller_id: int
 
 
 class TransactionInDB(TransactionBase):

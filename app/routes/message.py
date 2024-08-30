@@ -11,24 +11,31 @@ router = APIRouter()
 
 
 @router.post("/users/{user_id}/post/{post_id}/message", response_model=s_message.Message)
-def create_message(user_id: int, post_id: int, message: s_message.MessageCreate, db: Session = Depends(get_db),
+def create_message(user_id: int, post_id: int, base_message: s_message.MessageCreateBase, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
-    if user_id != current_user.id or user_id != message.sender_id:
-        raise HTTPException(status_code=400,
-                            detail="Authentication failed or "
-                                   "User ID is not the Sender.")
+    if user_id != current_user.id:
+        raise HTTPException(status_code=400, detail="Authentication failed")
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Post in URL path does not exist in DB")
-    if post_id != message.post_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post in URL path does not exist in DB")
+    if base_message.receiver_id == user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Post ID in the request body does not match the URL path post ID")
-    if post.user_id != message.receiver_id and post.user_id != message.sender_id:
+                            detail="Cant send message to yourself.")
+    if post.user_id != user_id and post.user_id != base_message.receiver_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Sender or Receiver ID in the request body does not match the User of the post ID")
-    message_data = message.model_dump()
-    return c_message.create_message(db=db, message=s_message.MessageCreate(**message_data))
+                            detail="Sender or Receiver ID not in association with Post ID in URL")
+    if post.user_id == user_id:
+        post_messages = c_message.get_message_by_post_id(db=db, post_id=post_id)
+        found_message = False
+        for message in post_messages:
+            if message.sender_id == base_message.receiver_id:
+                found_message = True
+        if not found_message:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Potential buyer has to contact seller first.")
+    message_data = base_message.model_dump()
+    message = s_message.MessageCreate(**message_data, post_id=post_id, sender_id=user_id)
+    return c_message.create_message(db=db, message=message)
 
 
 @router.get("/users/{user_id}/post/{post_id}/message", response_model=list[s_message.Message])

@@ -11,27 +11,28 @@ router = APIRouter()
 
 
 @router.post("/users/{user_id}/post/{post_id}/transaction/", response_model=s_transaction.Transaction)
-def create_transaction(user_id: int, post_id: int, transaction: s_transaction.TransactionCreate,
+def create_transaction(user_id: int, post_id: int, transaction_base: s_transaction.TransactionCreateBase,
                        db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
-    if user_id != current_user.id or user_id != transaction.buyer_id:
+    if user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Authentication failed or "
-                                   "User ID is in URL not the Buyer ID in Request Body.")
+                            detail="Authentication failed")
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Post not in DB.")
-    if post_id != transaction.post_id and db_post.user_id != transaction.seller_id:
+    if db_post.user_id == user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Post ID in Request Body does not match in URL or "
-                                   "given Post ID in URL not from Seller.")
-    if transaction.quantity > db_post.quantity:
+                            detail="Cant buy your own stuff, you already own it")
+    if transaction_base.quantity > db_post.quantity:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Quantity not  available.")
-    total_amount = db_post.price * transaction.quantity
-    if total_amount != transaction.price:
+    total_amount = db_post.price * transaction_base.quantity
+    if total_amount != transaction_base.price:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Price not correct.")
+                            detail="Price not correct. Seller: adjust price in Post or Buyer: adjust quantity")
+    transaction_data = transaction_base.model_dump()
+    transaction = s_transaction.TransactionCreate(**transaction_data, buyer_id=user_id,
+                                                  post_id=post_id, seller_id=db_post.user_id)
     return c_transaction.create_transaction(db=db, transaction=transaction)
 
 

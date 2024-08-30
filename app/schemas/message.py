@@ -10,9 +10,12 @@ class MessageUpdate(BaseModel):
     message: str
 
 
-class MessageCreate(MessageBase):
-    sender_id: int
+class MessageCreateBase(MessageBase):
     receiver_id: int
+
+
+class MessageCreate(MessageCreateBase):
+    sender_id: int
     post_id: int
 
 
