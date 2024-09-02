@@ -40,6 +40,7 @@ To run the project locally, follow these steps:
 
 6. **Access the application**:
     - Open your web browser and go to `http://127.0.0.1:8000`.
+    - To visit the FastAPI build-in documentation go to `http://127.0.0.1:8000/docs`
 
 ## Usage
 
@@ -156,8 +157,7 @@ Here is a high-level overview of the project directory structure:
     │   │   ├── test_watchlist_post.py
     │   │   └── test_watchlist_user.py
     │   │   
-    │   ├── __init__.py 
-    │   ├── config.py   
+    │   ├── __init__.py  
     │   ├── database.py 
     │   └── main.py        
     │
