@@ -24,6 +24,16 @@ headers = {"Authorization": f"Bearer {access_token}"}
 @pytest.fixture
 def created_post():
     user_id = 2
+    response = client.get(f"/users/{user_id}/posts/",
+                          headers=headers
+                          )
+    to_delete = response.json()
+    if to_delete:
+        for post in to_delete:
+            post_id = post['id']
+            client.delete(f"/posts/{post_id}/",
+                          headers=headers
+                          )
     response = client.post(
         f"/users/{user_id}/posts/",
         json={
@@ -32,7 +42,7 @@ def created_post():
           "price": 2.0,
           "condition": "test1234Post",
           "status": "available",
-          "user_id": 2,
+          "user_id": user_id,
           "sub_category_id": 139
         },
         headers=headers

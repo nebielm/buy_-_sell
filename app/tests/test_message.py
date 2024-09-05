@@ -1,85 +1,144 @@
-# import pytest
-# from fastapi.testclient import TestClient
-# from app.main import app
-#
-#
-# client = TestClient(app)
-#
-#
-# def get_access_token():
-#     username = "test1234"
-#     password = "test1234"
-#     response = client.post(
-#         "/token",
-#         data={"username": username, "password": password}
-#     )
-#     assert response.status_code == 200
-#     return response.json()["access_token"]
-#
-#
-# access_token = get_access_token()
-# headers = {"Authorization": f"Bearer {access_token}"}
-#
-#
-# @pytest.fixture
-# def created_post():
-#     user_id = 2
-#     response = client.post(
-#         f"/users/{user_id}/posts/",
-#         json={
-#           "title": "test1234Post",
-#           "description": "test1234Post",
-#           "price": 2.0,
-#           "condition": "test1234Post",
-#           "status": "available",
-#           "user_id": 2,
-#           "sub_category_id": 139
-#         },
-#         headers=headers
-#     )
-#     assert response.status_code == 200
-#     return response.json()
-#
-#
-# @pytest.fixture
-# def created_message(created_post):
-#     user_id = 2
-#     post_id = created_post().id
-#     response = client.post(
-#         f"/users/{user_id}/post/{post_id}/message",
-#         json={"message": "test", "sender_id": user_id, "receiver_id": 1, "post_id": post_id},
-#         headers=headers
-#     )
-#     assert response.status_code == 200
-#     return response.json()
-#
-#
-# def test_created_message(created_message):
-#     user_id = 1
-#     post_id = 1
-#     assert "id" in created_message
-#     assert "last_message_change" in created_message
-#     assert created_message["message"] == "test"
-#     assert created_message["sender_id"] == user_id
-#     assert created_message["receiver_id"] == 2
-#     assert created_message["post_id"] == post_id
-#
-#
-# def test_update_message(created_message):
-#     user_id = 1
-#     post_id = 1
-#     message_id = created_message['id']
-#     new_message = "updated message"
-#     response = client.put(
-#         f"/users/{user_id}/messages/{message_id}/",
-#         headers=headers,
-#         json={"message": new_message}
-#     )
-#     assert response.status_code == 200
-#     json_response = response.json()
-#     assert json_response["id"] == message_id
-#     assert "last_message_change" in json_response
-#     assert json_response["message"] == new_message
-#     assert json_response["sender_id"] == user_id
-#     assert json_response["receiver_id"] == 2
-#     assert json_response["post_id"] == post_id
+import pytest
+from fastapi.testclient import TestClient
+from app.main import app
+
+
+client = TestClient(app)
+
+
+def get_access_token_test():
+    username = "test1234"
+    password = "test1234"
+    response = client.post(
+        "/token",
+        data={"username": username, "password": password}
+    )
+    assert response.status_code == 200
+    return response.json()["access_token"]
+
+
+access_token_sender = get_access_token_test()
+headers_sender = {"Authorization": f"Bearer {access_token_sender}"}  # 2
+
+
+def get_access_token_1234():
+    username = "1234test"
+    password = "1234test"
+    response = client.post(
+        "/token",
+        data={"username": username, "password": password}
+    )
+    assert response.status_code == 200
+    return response.json()["access_token"]
+
+
+access_token_receiver = get_access_token_1234()
+headers_receiver = {"Authorization": f"Bearer {access_token_receiver}"}  # 3
+
+
+@pytest.fixture
+def create_post():
+    user_id = 3
+    response = client.get(f"/users/{user_id}/posts/",
+                          headers=headers_receiver
+                          )
+    to_delete = response.json()
+    if to_delete:
+        for post in to_delete:
+            post_id = post['id']
+            client.delete(f"/posts/{post_id}/",
+                          headers=headers_receiver
+                          )
+    response = client.post(
+        f"/users/{user_id}/posts/",
+        json={
+          "title": "test1234",
+          "description": "test1234",
+          "price": 2.0,
+          "condition": "test1234",
+          "status": "available",
+          "user_id": user_id,
+          "sub_category_id": 139
+        },
+        headers=headers_receiver
+    )
+    assert response.status_code == 200
+    return response.json()
+
+
+def test_failing_to_create_message(create_post):
+    user_id = create_post['user_id']
+    post_id = create_post['id']
+    response = client.post(
+        f"/users/{user_id}/post/{post_id}/message",
+        json={
+          "message": "second test message",
+          "receiver_id": 2
+        },
+        headers=headers_receiver
+    )
+    assert response.status_code == 403  # post.user_id has to be first receiver
+
+
+@pytest.fixture
+def create_first_message(create_post):
+    user_id = 2
+    post_id = create_post['id']
+    response = client.post(
+        f"/users/{user_id}/post/{post_id}/message",
+        json={
+          "message": "first test message",
+          "receiver_id": create_post["user_id"]
+        },
+        headers=headers_sender
+    )
+    assert response.status_code == 200
+    return response.json()
+
+
+@pytest.fixture
+def create_second_message(create_post):
+    user_id = create_post['user_id']
+    post_id = create_post['id']
+    response = client.post(
+        f"/users/{user_id}/post/{post_id}/message",
+        json={
+          "message": "second test message",
+          "receiver_id": 2
+        },
+        headers=headers_receiver
+    )
+    assert response.status_code == 200
+    return response.json()
+
+
+def test_get_created_message(create_first_message, create_second_message):
+    user_id = create_first_message["sender_id"]
+    post_id = create_first_message["post_id"]
+    response_first_message = client.get(f"/users/{user_id}/post/{post_id}/message",
+                                        headers=headers_sender)
+    assert response_first_message.status_code == 200
+    first_message_response_data = response_first_message.json()
+    user_id = create_second_message["sender_id"]
+    post_id = create_second_message["post_id"]
+    response_second_message = client.get(f"/users/{user_id}/post/{post_id}/message",
+                                         headers=headers_receiver)
+    assert response_second_message.status_code == 200
+    second_message_response_data = response_second_message.json()
+    sorted_first_response = sorted(first_message_response_data, key=lambda x: x['sender_id'])
+    sorted_second_response = sorted(second_message_response_data, key=lambda x: x['sender_id'])
+    assert sorted_first_response == sorted_second_response
+
+
+def test_update_message(create_post, create_first_message):
+    user_id = create_first_message['sender_id']
+    message_id = create_first_message['id']
+    updated_message = "updated message test"
+    response = client.put(
+        f"/users/{user_id}/messages/{message_id}/",
+        headers=headers_sender,
+        json={"message": updated_message}
+    )
+    assert response.status_code == 200
+    json_response = response.json()
+    assert json_response["message"] == updated_message

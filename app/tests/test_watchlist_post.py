@@ -43,11 +43,12 @@ def created_post():
                           headers=post_headers
                           )
     to_delete = response.json()
-    for post in to_delete:
-        post_id = post['id']
-        client.delete(f"/posts/{post_id}/",
-                      headers=post_headers
-                      )
+    if to_delete:
+        for post in to_delete:
+            post_id = post['id']
+            client.delete(f"/posts/{post_id}/",
+                          headers=post_headers
+                          )
     response = client.post(
         f"/users/{user_id}/posts/",
         json={
@@ -56,7 +57,7 @@ def created_post():
           "price": 2.0,
           "condition": "test1234Post",
           "status": "available",
-          "user_id": 2,
+          "user_id": user_id,
           "sub_category_id": 139
         },
         headers=post_headers

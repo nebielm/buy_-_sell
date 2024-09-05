@@ -44,11 +44,12 @@ def created_watch_user():
                           headers=headers_following
                           )
     to_delete = response.json()
-    for record in to_delete:
-        watch_user_id = record['id']
-        client.delete(f"/following_user/{following_user_id}/watchlist/{watch_user_id}/",
-                      headers=headers_following
-                      )
+    if to_delete:
+        for record in to_delete:
+            watch_user_id = record['id']
+            client.delete(f"/following_user/{following_user_id}/watchlist/{watch_user_id}/",
+                          headers=headers_following
+                          )
     response = client.post(
         f"/following_user/{following_user_id}/watchlist/followed_user/{followed_user_id}/",
         headers=headers_following

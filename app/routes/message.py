@@ -14,7 +14,7 @@ router = APIRouter()
 def create_message(user_id: int, post_id: int, base_message: s_message.MessageCreateBase, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
-        raise HTTPException(status_code=400, detail="Authentication failed")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed")
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post in URL path does not exist in DB")
@@ -42,7 +42,7 @@ def create_message(user_id: int, post_id: int, base_message: s_message.MessageCr
 def get_my_messages_by_post(user_id: int, post_id: int, db: Session = Depends(get_db),
                             current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
-        raise HTTPException(status_code=400,
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Authentication failed")
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
@@ -64,7 +64,7 @@ def get_all_my_messages(user_id: int, db: Session = Depends(get_db),
                         query: str = Query(enum=["sent", "received", "both"], default="both"),
                         current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
-        raise HTTPException(status_code=400,
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Authentication failed")
     sent_messages = c_message.get_message_by_sender_id(db=db, sender_id=user_id)
     received_messages = c_message.get_message_by_receiver_id(db=db, receiver_id=user_id)
@@ -80,7 +80,7 @@ def get_all_my_messages(user_id: int, db: Session = Depends(get_db),
 def update_message(user_id: int, message_id: int, new_message: s_message.MessageUpdate,
                    db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
-        raise HTTPException(status_code=400,
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Authentication failed")
     db_message = c_message.get_message_by_id(db=db, message_id=message_id)
     if db_message.sender_id != user_id:
@@ -99,7 +99,7 @@ def update_message(user_id: int, message_id: int, new_message: s_message.Message
 def delete_message(user_id: int, message_id: int, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
-        raise HTTPException(status_code=400,
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Authentication failed")
     db_message = c_message.get_message_by_id(db=db, message_id=message_id)
     if db_message.sender_id != user_id:
