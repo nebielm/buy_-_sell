@@ -109,11 +109,11 @@ def update_transaction(user_id: int, transaction_id: int, new_transaction: s_tra
     db_transaction = c_transaction.get_transaction_by_id(db=db, transaction_id=transaction_id)
     if not db_transaction:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Transaction with not in DB.")
+                            detail="Transaction not in DB.")
     if db_transaction.buyer_id != user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="User ID is in URL not the Buyer")
-    db_post = c_post.get_post_by_id(db=db, post_id=db_transaction.seller_id)
+    db_post = c_post.get_post_by_id(db=db, post_id=db_transaction.post_id)
     if new_transaction.quantity or new_transaction.price:
         if new_transaction.quantity > db_post.quantity:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
