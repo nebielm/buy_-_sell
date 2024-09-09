@@ -6,9 +6,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def get_access_token():
-    username = "test1234"
-    password = "test1234"
+def get_access_token(username, password):
     response = client.post(
         "/token",
         data={"username": username, "password": password}
@@ -17,12 +15,49 @@ def get_access_token():
     return response.json()["access_token"]
 
 
-access_token = get_access_token()
-headers = {"Authorization": f"Bearer {access_token}"}
+def create_user(username, password):
+    response_username = client.get(f"/users/username/{username}/")
+    if response_username.status_code == 200:
+        response_data = response_username.json()
+        access_token = get_access_token(username, password)
+        headers = {"Authorization": f"Bearer {access_token}"}
+        return {"user_data": response_data, "headers": headers}
+    response = client.post(
+                           url="/users/",
+                           data={
+                                      "first_name": username,
+                                      "last_name": username,
+                                      "birthday": "2024-09-03",
+                                      "username": username,
+                                      "email": username + "@example.com",
+                                      "tel_number": username,
+                                      "street": username,
+                                      "house_number": username,
+                                      "zip_code": username,
+                                      "city_town_village": username,
+                                      "country": username,
+                                      "commercial_account": "false",
+                                      "notification": "true",
+                                      "account_status": "true",
+                                      "password": password
+                                    }
+                           )
+    print(response.json())
+    assert response.status_code == 200
+    response_data = response.json()
+    access_token = get_access_token(username, password)
+    headers = {"Authorization": f"Bearer {access_token}"}
+    return {"user_data": response_data, "headers": headers}
 
 
-def test_get_user():
-    user_id = 2
+@pytest.fixture
+def get_user():
+    return create_user("test1234", "test1234")
+
+
+def test_get_user(get_user):
+    headers = get_user['headers']
+    user_id = get_user['user_data']['id']
     response = client.get(
         f"/users/{user_id}/",
         headers=headers
@@ -35,7 +70,7 @@ def test_get_user():
       "last_name": "test1234",
       "birthday": "2024-09-03",
       "username": "test1234",
-      "email": "user@example.com",
+      "email": "test1234@example.com",
       "tel_number": "test1234",
       "street": "test1234",
       "house_number": "test1234",
@@ -45,20 +80,21 @@ def test_get_user():
       "commercial_account": False,
       "notification": True,
       "account_status": True,
-      "id": 2,
+      "id": user_id,
       "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d70-889d-e5738feb4bd7"
                               "_28_08_2024_19_13_36_default_profile_pic.jpg"
     }
 
 
-def test_failing_update_user():
-    user_id = 3
+def test_failing_update_user(get_user):
+    headers = get_user['headers']
+    user_id = int(get_user['user_data']['id']) + 1
     response = client.put(
         f"/users/{user_id}/",
         json={
             "birthday": "2024-09-03",
             "username": "test1234",
-            "email": "user@example.com",
+            "email": "test1234@example.com",
             "tel_number": "test1234",
             "street": "test1234",
             "house_number": "test1234",
@@ -72,14 +108,15 @@ def test_failing_update_user():
     }
 
 
-def test_update_user():
-    user_id = 2
+def test_update_user(get_user):
+    headers = get_user['headers']
+    user_id = get_user['user_data']['id']
     response = client.put(
         f"/users/{user_id}/",
         json={
           "birthday": "2024-09-03",
           "username": "test1234",
-          "email": "user@example.com",
+          "email": "test1234@example.com",
           "tel_number": "test1234",
           "street": "test1234",
           "house_number": "test1234",
@@ -95,7 +132,7 @@ def test_update_user():
         "last_name": "test1234",
         "birthday": "2024-09-03",
         "username": "test1234",
-        "email": "user@example.com",
+        "email": "test1234@example.com",
         "tel_number": "test1234",
         "street": "test1234",
         "house_number": "test1234",
@@ -105,7 +142,7 @@ def test_update_user():
         "commercial_account": False,
         "notification": True,
         "account_status": True,
-        "id": 2,
+        "id": user_id,
         "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d70-889d-e5738feb4bd7"
                                 "_28_08_2024_19_13_36_default_profile_pic.jpg"
     }

@@ -1,44 +1,39 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.tests.test_00_user import create_user
 
 
 client = TestClient(app)
 
 
-def get_access_token_test():
-    username = "test1234"
-    password = "test1234"
+def get_access_token(username, password):
     response = client.post(
         "/token",
         data={"username": username, "password": password}
     )
     assert response.status_code == 200
     return response.json()["access_token"]
-
-
-access_token_sender = get_access_token_test()
-headers_sender = {"Authorization": f"Bearer {access_token_sender}"}  # 2
-
-
-def get_access_token_1234():
-    username = "1234test"
-    password = "1234test"
-    response = client.post(
-        "/token",
-        data={"username": username, "password": password}
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
-
-
-access_token_receiver = get_access_token_1234()
-headers_receiver = {"Authorization": f"Bearer {access_token_receiver}"}  # 3
 
 
 @pytest.fixture
-def create_post():
-    user_id = 3
+def get_user_test():
+    username = "test1234"
+    password = "test1234"
+    return create_user(username=username, password=password)
+
+
+@pytest.fixture
+def get_user_1234():
+    username = "1234test"
+    password = "1234test"
+    return create_user(username=username, password=password)
+
+
+@pytest.fixture
+def create_post(get_user_1234):
+    user_id = get_user_1234["user_data"]["id"]
+    headers_receiver = get_user_1234["headers"]
     response = client.get(f"/users/{user_id}/posts/",
                           headers=headers_receiver
                           )
@@ -66,14 +61,16 @@ def create_post():
     return response.json()
 
 
-def test_failing_to_create_message(create_post):
+def test_failing_to_create_message(create_post, get_user_1234, get_user_test):
+    receiver_id = get_user_test["user_data"]["id"]
+    headers_receiver = get_user_1234["headers"]
     user_id = create_post['user_id']
     post_id = create_post['id']
     response = client.post(
         f"/users/{user_id}/post/{post_id}/message",
         json={
           "message": "second test message",
-          "receiver_id": 2
+          "receiver_id": receiver_id
         },
         headers=headers_receiver
     )
@@ -81,8 +78,9 @@ def test_failing_to_create_message(create_post):
 
 
 @pytest.fixture
-def create_first_message(create_post):
-    user_id = 2
+def create_first_message(create_post, get_user_test):
+    user_id = get_user_test['user_data']['id']
+    headers_sender = get_user_test["headers"]
     post_id = create_post['id']
     response = client.post(
         f"/users/{user_id}/post/{post_id}/message",
@@ -97,14 +95,16 @@ def create_first_message(create_post):
 
 
 @pytest.fixture
-def create_second_message(create_post):
+def create_second_message(create_post, get_user_1234, get_user_test):
+    receiver_id = get_user_test['user_data']['id']
+    headers_receiver = get_user_1234["headers"]
     user_id = create_post['user_id']
     post_id = create_post['id']
     response = client.post(
         f"/users/{user_id}/post/{post_id}/message",
         json={
           "message": "second test message",
-          "receiver_id": 2
+          "receiver_id": receiver_id
         },
         headers=headers_receiver
     )
@@ -112,9 +112,11 @@ def create_second_message(create_post):
     return response.json()
 
 
-def test_get_created_message(create_first_message, create_second_message):
+def test_get_created_message(create_first_message, create_second_message, get_user_1234, get_user_test):
     user_id = create_first_message["sender_id"]
     post_id = create_first_message["post_id"]
+    headers_sender = get_user_test["headers"]
+    headers_receiver = get_user_1234["headers"]
     response_first_message = client.get(f"/users/{user_id}/post/{post_id}/message",
                                         headers=headers_sender)
     assert response_first_message.status_code == 200
@@ -130,8 +132,9 @@ def test_get_created_message(create_first_message, create_second_message):
     assert sorted_first_response == sorted_second_response
 
 
-def test_update_message(create_post, create_first_message):
+def test_update_message(create_post, create_first_message, get_user_test):
     user_id = create_first_message['sender_id']
+    headers_sender = get_user_test["headers"]
     message_id = create_first_message['id']
     updated_message = "updated message test"
     response = client.put(

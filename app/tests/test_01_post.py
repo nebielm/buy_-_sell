@@ -1,14 +1,13 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.tests.test_00_user import create_user
 
 
 client = TestClient(app)
 
 
-def get_access_token():
-    username = "test1234"
-    password = "test1234"
+def get_access_token(username, password):
     response = client.post(
         "/token",
         data={"username": username, "password": password}
@@ -17,25 +16,29 @@ def get_access_token():
     return response.json()["access_token"]
 
 
-access_token = get_access_token()
-headers = {"Authorization": f"Bearer {access_token}"}
+@pytest.fixture
+def get_user():
+    username = "test1234"
+    password = "test1234"
+    return create_user(username=username, password=password)
 
 
 @pytest.fixture
-def created_post():
-    user_id = 2
-    response = client.get(f"/users/{user_id}/posts/",
+def create_post(get_user):
+    headers = get_user['headers']
+    user_id = get_user['user_data']['id']
+    response = client.get(url=f"/users/{user_id}/posts/",
                           headers=headers
                           )
     to_delete = response.json()
     if to_delete:
         for post in to_delete:
             post_id = post['id']
-            client.delete(f"/posts/{post_id}/",
+            client.delete(url=f"/posts/{post_id}/",
                           headers=headers
                           )
     response = client.post(
-        f"/users/{user_id}/posts/",
+        url=f"/users/{user_id}/posts/",
         json={
           "title": "test1234Post",
           "description": "test1234Post",
@@ -51,8 +54,9 @@ def created_post():
     return response.json()
 
 
-def test_get_post(created_post):
-    user_id = 2
+def test_get_post(create_post, get_user):
+    headers = get_user['headers']
+    user_id = create_post["user_id"]
     response = client.get(
         f"/users/{user_id}/posts/",
         headers=headers
@@ -72,14 +76,15 @@ def test_get_post(created_post):
         "status": "available",
         "show_email": True,
         "show_tel": True,
-        "id": created_post['id'],
-        "user_id": 2,
+        "id": create_post['id'],
+        "user_id": user_id,
         "sub_category_id": 139
       }
     assert expected_response in response_data
 
 
-def test_failing_update_post(created_post):
+def test_failing_update_post(get_user):
+    headers = get_user['headers']
     post_id = 0
     response = client.put(
         f"/posts/{post_id}/",
@@ -98,8 +103,10 @@ def test_failing_update_post(created_post):
     }
 
 
-def test_update_post(created_post):
-    post_id = created_post['id']
+def test_update_post(create_post, get_user):
+    headers = get_user['headers']
+    user_id = create_post["user_id"]
+    post_id = create_post['id']
     response = client.put(
         f"/posts/{post_id}/",
         json={
@@ -126,6 +133,6 @@ def test_update_post(created_post):
       "show_email": True,
       "show_tel": True,
       "id": post_id,
-      "user_id": 2,
+      "user_id": user_id,
       "sub_category_id": 139
     }

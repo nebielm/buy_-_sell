@@ -1,44 +1,39 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.tests.test_00_user import create_user
 
 
 client = TestClient(app)
 
 
-def get_access_token_test():
-    username = "test1234"
-    password = "test1234"
+def get_access_token(username, password):
     response = client.post(
         "/token",
         data={"username": username, "password": password}
     )
     assert response.status_code == 200
     return response.json()["access_token"]
-
-
-access_token_seller = get_access_token_test()
-headers_seller = {"Authorization": f"Bearer {access_token_seller}"}  # 2
-
-
-def get_access_token_1234():
-    username = "1234test"
-    password = "1234test"
-    response = client.post(
-        "/token",
-        data={"username": username, "password": password}
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
-
-
-access_token_buyer = get_access_token_1234()
-headers_buyer = {"Authorization": f"Bearer {access_token_buyer}"}  # 3
 
 
 @pytest.fixture
-def create_post():
-    user_id = 2
+def get_user_seller():
+    username = "test1234"
+    password = "test1234"
+    return create_user(username=username, password=password)
+
+
+@pytest.fixture
+def get_user_buyer():
+    username = "1234test"
+    password = "1234test"
+    return create_user(username=username, password=password)
+
+
+@pytest.fixture
+def create_post(get_user_seller):
+    headers_seller = get_user_seller["headers"]
+    user_id = get_user_seller["user_data"]["id"]
     response = client.get(f"/users/{user_id}/posts/",
                           headers=headers_seller
                           )
@@ -68,8 +63,9 @@ def create_post():
 
 
 @pytest.fixture
-def create_transaction(create_post):
-    user_id = 3
+def create_transaction(create_post, get_user_buyer):
+    user_id = get_user_buyer["user_data"]["id"]
+    headers_buyer = get_user_buyer["headers"]
     post_id = create_post["id"]
     response = client.post(f"/users/{user_id}/post/{post_id}/transaction/",
                            json={"price": 10.0,
@@ -80,8 +76,9 @@ def create_transaction(create_post):
     return response.json()
 
 
-def test_get_transaction(create_transaction):
+def test_get_transaction(create_transaction, get_user_buyer, get_user_seller):
     buyer_id = create_transaction["buyer_id"]
+    headers_buyer = get_user_buyer["headers"]
     post_id = create_transaction["post_id"]
     transaction_id = create_transaction["id"]
     response = client.get(f"/users/{buyer_id}/post/{post_id}/transaction/", headers=headers_buyer)
@@ -95,6 +92,7 @@ def test_get_transaction(create_transaction):
     response_get_send_trans = response.json()
 
     seller_id = create_transaction["seller_id"]
+    headers_seller = get_user_seller["headers"]
     response = client.get(f"/users/{seller_id}/post/{post_id}/transaction/", headers=headers_seller)
     assert response.status_code == 200
     seller_response_data_post_id = response.json()
@@ -112,8 +110,9 @@ def test_get_transaction(create_transaction):
     assert response_get_send_trans == response_get_received_trans
 
 
-def test_failed_update_transaction(create_transaction):
+def test_failed_update_transaction(create_transaction, get_user_buyer):
     user_id = create_transaction["buyer_id"]
+    headers_buyer = get_user_buyer["headers"]
     transaction_id = create_transaction["id"]
     response = client.put(f"/users/{user_id}/transaction/{transaction_id}/",
                           json={"price": 30.0, "quantity": 5},
