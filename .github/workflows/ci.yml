@@ -34,6 +34,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       BUCKET_NAME_PROFILE_PIC: ${{ secrets.BUCKET_NAME_PROFILE_PIC }}
       BUCKET_NAME_POST_PIC: ${{ secrets.BUCKET_NAME_POST_PIC }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
     - name: Checkout code

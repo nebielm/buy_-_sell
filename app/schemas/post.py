@@ -12,7 +12,6 @@ class StatusEnum(str, Enum):
 class PostBase(BaseModel):
     title: str
     use_payment_option: bool | None = True
-    description: str
     price: float | None = 0.00
     condition: str
     quantity: int | None = 1
@@ -36,14 +35,19 @@ class PostUpdate(BaseModel):
     sub_category_id: int | None = None
 
 
-class PostCreate(PostBase):
+class PostCreateBase(PostBase):
+    sub_category_id: int | None = 139
+    description: str | None = None
+
+
+class PostCreate(PostCreateBase):
     user_id: int
-    sub_category_id: int
 
 
 class PostInDB(PostBase):
     id: int
     user_id: int
+    description: str
     created_at: datetime
     sub_category_id: int
 

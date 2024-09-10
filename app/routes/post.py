@@ -9,7 +9,7 @@ from app.models import user as m_user
 from app.crud import post as c_post
 from app.crud import user as c_user
 from app.crud import pictures as c_pictures
-from app.routes.utils import delete_image_from_s3
+from app.routes.utils import delete_image_from_s3, generate_description
 from app.database import get_db
 
 router = APIRouter()
@@ -20,12 +20,16 @@ BUCKET_NAME = os.getenv("BUCKET_NAME_POST_PIC")
 
 
 @router.post("/users/{user_id}/posts/", response_model=s_post.Post)
-def create_post(user_id: int, post: s_post.PostCreate, db: Session = Depends(get_db),
+def create_post(user_id: int, post: s_post.PostCreateBase, keywords: str | None = None,
+                db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
         raise HTTPException(status_code=400, detail="User ID in the request body does not match the URL path user ID")
     post_data = post.model_dump()
     post_data["user_id"] = user_id
+    if not post_data["description"]:
+        parameters = ", ".join(f"{key}: {value}" for key, value in post_data.items())
+        post_data["description"] = generate_description(keywords=keywords, parameters=parameters)
     db_post = c_post.create_post(db=db, post=s_post.PostCreate(**post_data))
     default_pic_link = ("https://buysellpostpics.s3.amazonaws.com/01919976-385e-7a60-8eeb-7ab00c13e0cf_"
                         "28_08_2024_16_49_07_default_post_pic.jpg")
