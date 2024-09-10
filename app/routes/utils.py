@@ -1,5 +1,5 @@
 import os
-import openai
+from openai import OpenAI
 import uuid_utils as uuid
 from datetime import datetime, date
 import boto3
@@ -12,23 +12,22 @@ from app.schemas import user as s_user
 
 load_dotenv()
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 MEGABYTE = 1024 * 1024
 
 
 def generate_description(keywords, parameters):
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"Generate a post description using these keywords: {keywords} "
-                                            f"and parameters: {parameters}."}
-            ],
-            max_tokens=150
-        )
-        return response.choices[0].message['content'].strip()
+                     {"role": "system", "content": "You are a helpful assistant."},
+                     {"role": "user", "content": f"Generate a post description using these keywords: {keywords} and "
+                                                 f"parameters: {parameters}."}
+                     ],
+            max_tokens=150)
+        return response.choices[0].message.content.strip()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
