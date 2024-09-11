@@ -8,7 +8,8 @@ def get_picture_by_id(db: Session, picture_id: int):
 
 
 def get_picture_by_image_path(db: Session, picture_image_path: str):
-    return db.query(m_picture.Picture).filter(m_picture.Picture.image_path == picture_image_path).all()
+    return (db.query(m_picture.Picture).filter
+            (m_picture.Picture.image_path == picture_image_path).all())
 
 
 def get_picture_by_post_id(db: Session, post_id: int):

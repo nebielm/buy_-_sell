@@ -4,17 +4,18 @@ from app.schemas import watchlist_user as s_watch_user
 
 
 def get_watchlist_user_by_id(db: Session, watch_user_id: int):
-    return db.query(m_watch_user.WatchlistUser).filter(m_watch_user.WatchlistUser.id == watch_user_id).first()
+    return (db.query(m_watch_user.WatchlistUser).filter
+            (m_watch_user.WatchlistUser.id == watch_user_id).first())
 
 
 def get_watchlist_user_by_following_user_id(db: Session, following_user_id: int):
-    return db.query(m_watch_user.WatchlistUser).filter(m_watch_user.WatchlistUser.following_user_id ==
-                                                       following_user_id).all()
+    return (db.query(m_watch_user.WatchlistUser).filter
+            (m_watch_user.WatchlistUser.following_user_id == following_user_id).all())
 
 
 def get_watchlist_user_by_followed_user_id(db: Session, followed_user_id: int):
-    return db.query(m_watch_user.WatchlistUser).filter(m_watch_user.WatchlistUser.followed_user_id ==
-                                                       followed_user_id).all()
+    return (db.query(m_watch_user.WatchlistUser).filter
+            (m_watch_user.WatchlistUser.followed_user_id == followed_user_id).all())
 
 
 def create_watchlist_user(db: Session, watch_user: s_watch_user.WatchUserCreate):

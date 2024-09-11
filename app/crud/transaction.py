@@ -4,19 +4,23 @@ from app.schemas import transaction as s_transaction
 
 
 def get_transaction_by_id(db: Session, transaction_id: int):
-    return db.query(m_transaction.Transaction).filter(m_transaction.Transaction.id == transaction_id).first()
+    return (db.query(m_transaction.Transaction).filter
+            (m_transaction.Transaction.id == transaction_id).first())
 
 
 def get_transaction_by_buyer_id(db: Session, buyer_id: int):
-    return db.query(m_transaction.Transaction).filter(m_transaction.Transaction.buyer_id == buyer_id).all()
+    return (db.query(m_transaction.Transaction).filter
+            (m_transaction.Transaction.buyer_id == buyer_id).all())
 
 
 def get_transaction_by_seller_id(db: Session, seller_id: int):
-    return db.query(m_transaction.Transaction).filter(m_transaction.Transaction.seller_id == seller_id).all()
+    return (db.query(m_transaction.Transaction).filter
+            (m_transaction.Transaction.seller_id == seller_id).all())
 
 
 def get_transaction_by_post_id(db: Session, post_id: int):
-    return db.query(m_transaction.Transaction).filter(m_transaction.Transaction.post_id == post_id).all()
+    return (db.query(m_transaction.Transaction).filter
+            (m_transaction.Transaction.post_id == post_id).all())
 
 
 def create_transaction(db: Session, transaction: s_transaction.TransactionCreate):
@@ -27,7 +31,8 @@ def create_transaction(db: Session, transaction: s_transaction.TransactionCreate
     return db_transaction
 
 
-def update_transaction(db: Session, transaction_id: int, new_transaction: s_transaction.TransactionUpdate):
+def update_transaction(db: Session, transaction_id: int,
+                       new_transaction: s_transaction.TransactionUpdate):
     db_transaction = get_transaction_by_id(db=db, transaction_id=transaction_id)
     if not db_transaction:
         return None

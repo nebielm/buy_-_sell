@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
+from dotenv import load_dotenv
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer

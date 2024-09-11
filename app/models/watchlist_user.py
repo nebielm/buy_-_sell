@@ -10,5 +10,7 @@ class WatchlistUser(Base):
     following_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     followed_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    following_user = relationship("User", foreign_keys=[following_user_id], back_populates="following_users")
-    followed_user = relationship("User", foreign_keys=[followed_user_id], back_populates="followed_users")
+    following_user = relationship("User", foreign_keys=[following_user_id],
+                                  back_populates="following_users")
+    followed_user = relationship("User", foreign_keys=[followed_user_id],
+                                 back_populates="followed_users")

@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
 from enum import Enum
+from pydantic import BaseModel, ConfigDict
 
 
 class CategoryEnum(str, Enum):

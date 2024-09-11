@@ -1,11 +1,11 @@
 import os
+from datetime import datetime, date
+from typing import Annotated
 from openai import OpenAI
 import uuid_utils as uuid
-from datetime import datetime, date
 import boto3
 from pydantic import EmailStr
 from dotenv import load_dotenv
-from typing import Annotated
 from fastapi import HTTPException, status, File, Form, UploadFile
 from app.schemas import user as s_user
 
@@ -23,7 +23,8 @@ def generate_description(keywords, parameters):
             model="gpt-3.5-turbo",
             messages=[
                      {"role": "system", "content": "You are a helpful assistant."},
-                     {"role": "user", "content": f"Generate a post description using these keywords: {keywords} and "
+                     {"role": "user", "content": "Generate a post description using "
+                                                 f"these keywords: {keywords} and "
                                                  f"parameters: {parameters}."}
                      ],
             max_tokens=150)
@@ -52,14 +53,20 @@ def upload_file(local_file: Annotated[UploadFile, File()], bucket_name,
     file_size = local_file.size
     file_content = local_file.content_type
     if file_size > MEGABYTE or "image" not in file_content:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Size to big or file not image.")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Size to big or file not image."
+        )
     try:
         s3_client.upload_fileobj(local_file.file, bucket_name, image_name)
         print(f'File {image_name} uploaded successfully.')
         download_link = generate_download_link(image_name)
         return download_link
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 def delete_image_from_s3(object_name, bucket_name):
@@ -73,7 +80,10 @@ def delete_image_from_s3(object_name, bucket_name):
         s3_client.delete_object(Bucket=bucket_name, Key=object_name)
         print(f'File {object_name} deleted successfully.')
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 def parse_user_create_base(

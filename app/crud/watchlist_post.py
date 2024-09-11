@@ -4,17 +4,18 @@ from app.schemas import watchlist_post as s_watch_post
 
 
 def get_watchlist_post_by_id(db: Session, watch_post_id: int):
-    return db.query(m_watch_post.WatchlistPost).filter(m_watch_post.WatchlistPost.id == watch_post_id).first()
+    return (db.query(m_watch_post.WatchlistPost).filter
+            (m_watch_post.WatchlistPost.id == watch_post_id).first())
 
 
 def get_watchlist_post_by_following_user_id(db: Session, following_user_id: int):
-    return db.query(m_watch_post.WatchlistPost).filter(m_watch_post.WatchlistPost.following_user_id ==
-                                                       following_user_id).all()
+    return (db.query(m_watch_post.WatchlistPost).filter
+            (m_watch_post.WatchlistPost.following_user_id == following_user_id).all())
 
 
 def get_watchlist_post_by_followed_post_id(db: Session, followed_post_id: int):
-    return db.query(m_watch_post.WatchlistPost).filter(m_watch_post.WatchlistPost.followed_post_id ==
-                                                       followed_post_id).all()
+    return (db.query(m_watch_post.WatchlistPost).filter
+            (m_watch_post.WatchlistPost.followed_post_id == followed_post_id).all())
 
 
 def create_watchlist_post(db: Session, watch_post: s_watch_post.WatchPostCreate):

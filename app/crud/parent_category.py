@@ -6,7 +6,8 @@ from app.schemas.post import PostUpdate
 
 
 def get_parent_cat_by_id(db: Session, parent_cat_id: int):
-    return db.query(m_parent_cat.ParentCat).filter(m_parent_cat.ParentCat.id == parent_cat_id).first()
+    return (db.query(m_parent_cat.ParentCat).filter
+            (m_parent_cat.ParentCat.id == parent_cat_id).first())
 
 
 def get_parent_cat_by_title(db: Session, title: str):
@@ -28,7 +29,8 @@ def create_parent_cat(db: Session, parent_cat: s_parent_cat.ParentCatCreate):
     return db_parent_cat
 
 
-def update_parent_cat(db: Session, parent_cat_id: int, new_parent_cat: s_parent_cat.ParentCatUpdate):
+def update_parent_cat(db: Session, parent_cat_id: int,
+                      new_parent_cat: s_parent_cat.ParentCatUpdate):
     db_parent_cat = get_parent_cat_by_id(db=db, parent_cat_id=parent_cat_id)
     if not db_parent_cat:
         return None

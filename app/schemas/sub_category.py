@@ -8,8 +8,9 @@ db = get_db()
 category_mapping = {
         get_parent_cat_by_title(db=db, title="Car, Bike & Boat").id: [
             "Cars", "Auto Parts & Tires", "Boats & Boat Accessories", "Bicycles & Accessories",
-            "Motorcycles & Scooters", "Motorcycle Parts & Accessories", "Commercial Vehicles & Trailers",
-            "Repairs & Services", "Caravans & Mobile Homes", "Other Car, Bike & Boat"
+            "Motorcycles & Scooters", "Motorcycle Parts & Accessories",
+            "Commercial Vehicles & Trailers", "Repairs & Services", "Caravans & Mobile Homes",
+            "Other Car, Bike & Boat"
         ],
         get_parent_cat_by_title(db=db, title="Electronics").id: [
             "Audio & Hi-Fi", "Electronics Services", "Photo", "Mobile & Telephone",
@@ -17,9 +18,9 @@ category_mapping = {
             "Tablets & Readers", "TV & Video", "Video Games", "Other Electronics"
         ],
         get_parent_cat_by_title(db=db, title="Home & Garden").id: [
-            "Bathrooms", "Office", "Decoration", "Home & Garden Services", "Garden Accessories & Plants",
-            "Home Textiles", "DIY", "Kitchen & Dining Room", "Lamps & Lights", "Bedrooms", "Living Room",
-            "Other Home & Garden"
+            "Bathrooms", "Office", "Decoration", "Home & Garden Services",
+            "Garden Accessories & Plants", "Home Textiles", "DIY", "Kitchen & Dining Room",
+            "Lamps & Lights", "Bedrooms", "Living Room", "Other Home & Garden"
         ],
         get_parent_cat_by_title(db=db, title="Jobs").id: [
             "Training", "Construction, Crafts & Production", "Office Work & Administration",
@@ -97,11 +98,11 @@ def validate_title(sub_cat_title):
 
 
 def validate_parent_id(sub_cat_title, parent_id):
-    for parent, sub_cat_list in category_mapping:
+    for parent, sub_cat_list in category_mapping.items():
         for sub_cat in sub_cat_list:
             if sub_cat_title == sub_cat:
                 if parent_id != parent:
-                    ValueError(f"Invalid parent_id.")
+                    raise ValueError("Invalid parent_id.")
                 return parent_id
 
 

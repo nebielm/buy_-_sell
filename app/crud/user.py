@@ -35,7 +35,7 @@ def update_user(db: Session, user_id: int,  user_new: s_user.UserUpdate):
         return None
     if user_new.email and get_user_by_email(db, user_new.email) and user_id != db_user.id:
         return None
-    elif user_new.username and get_user_by_username(db, user_new.username) and user_id != db_user.id:
+    if user_new.username and get_user_by_username(db, user_new.username) and user_id != db_user.id:
         return None
     user_data = user_new.model_dump(exclude_unset=True)
     if "password" in user_data:

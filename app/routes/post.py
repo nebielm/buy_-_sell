@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.core.security import get_current_user
 from app.schemas import post as s_post
@@ -24,15 +24,18 @@ def create_post(user_id: int, post: s_post.PostCreateBase, keywords: str | None 
                 db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
     if user_id != current_user.id:
-        raise HTTPException(status_code=400, detail="User ID in the request body does not match the URL path user ID")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User ID in the request body does not match the URL path user ID"
+        )
     post_data = post.model_dump()
     post_data["user_id"] = user_id
     if not post_data["description"]:
         parameters = ", ".join(f"{key}: {value}" for key, value in post_data.items())
         post_data["description"] = generate_description(keywords=keywords, parameters=parameters)
     db_post = c_post.create_post(db=db, post=s_post.PostCreate(**post_data))
-    default_pic_link = ("https://buysellpostpics.s3.amazonaws.com/01919976-385e-7a60-8eeb-7ab00c13e0cf_"
-                        "28_08_2024_16_49_07_default_post_pic.jpg")
+    default_pic_link = ("https://buysellpostpics.s3.amazonaws.com/01919976-385e-7a60-8eeb-"
+                        "7ab00c13e0cf_28_08_2024_16_49_07_default_post_pic.jpg")
     default_picture = s_pictures.PictureCreate(image_path=default_pic_link, post_id=db_post.id)
     c_pictures.create_picture(db=db, picture=default_picture)
     return db_post
@@ -41,7 +44,10 @@ def create_post(user_id: int, post: s_post.PostCreateBase, keywords: str | None 
 @router.get("/users/{user_id}/posts/", response_model=list[s_post.Post])
 def get_post_by_user(user_id: int, db: Session = Depends(get_db)):
     if not c_user.get_user_by_id(db, user_id=user_id):
-        raise HTTPException(status_code=404, detail=f"No user in DB with ID: {user_id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No user in DB with ID: {user_id}"
+        )
     return c_post.get_post_by_user(db=db, user_id=user_id)
 
 
@@ -49,7 +55,10 @@ def get_post_by_user(user_id: int, db: Session = Depends(get_db)):
 def get_post_by_sub_cat(sub_cat_id: int, db: Session = Depends(get_db)):
     posts = c_post.get_post_by_sub_cat(db=db, sub_cat_id=sub_cat_id)
     if not posts:
-        raise HTTPException(status_code=404, detail=f"No posts found for sub-category ID: {sub_cat_id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No posts found for sub-category ID: {sub_cat_id}"
+        )
     return posts
 
 
@@ -57,7 +66,10 @@ def get_post_by_sub_cat(sub_cat_id: int, db: Session = Depends(get_db)):
 def get_post_by_id(post_id: int, db: Session = Depends(get_db)):
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
-        raise HTTPException(status_code=404, detail=f"No post in DB with ID: {post_id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No post in DB with ID: {post_id}"
+        )
     return post
 
 
@@ -71,19 +83,32 @@ def update_post(post_id: int, post: s_post.PostUpdate, db: Session = Depends(get
                 current_user: m_user.User = Depends(get_current_user)):
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post not found"
+        )
     if current_user.id != db_post.user_id:
-        raise HTTPException(status_code=403, detail="Authentication failed")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Authentication failed"
+        )
     return c_post.update_post(db=db, post_id=post_id, post_new=post)
 
 
 @router.delete("/posts/{post_id}/")
-def delete_post(post_id: int, db: Session = Depends(get_db), current_user: m_user.User = Depends(get_current_user)):
+def delete_post(post_id: int, db: Session = Depends(get_db),
+                current_user: m_user.User = Depends(get_current_user)):
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post not found"
+        )
     if current_user.id != db_post.user_id:
-        raise HTTPException(status_code=403, detail="Authentication failed")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Authentication failed"
+        )
     post_pictures = c_pictures.get_picture_by_post_id(db=db, post_id=post_id)
     if post_pictures:
         for picture in post_pictures:

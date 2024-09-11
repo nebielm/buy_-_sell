@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class PictureBase(BaseModel):

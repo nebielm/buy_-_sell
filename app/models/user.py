@@ -26,17 +26,17 @@ class User(Base):
     account_status = Column(Boolean, default=True)
 
     post = relationship("Post", back_populates="user", cascade="all, delete-orphan")
-    sent_messages = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender",
-                                 cascade="all, delete-orphan")
-    received_messages = relationship("Message", foreign_keys="Message.receiver_id", back_populates="receiver",
-                                     cascade="all, delete-orphan")
+    sent_messages = relationship("Message", foreign_keys="Message.sender_id",
+                                 back_populates="sender", cascade="all, delete-orphan")
+    received_messages = relationship("Message", foreign_keys="Message.receiver_id",
+                                     back_populates="receiver", cascade="all, delete-orphan")
     watchlist_posts = relationship("WatchlistPost", foreign_keys="WatchlistPost.following_user_id",
                                    back_populates="following_user", cascade="all, delete-orphan")
     following_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.following_user_id",
                                    back_populates="following_user", cascade="all, delete-orphan")
     followed_users = relationship("WatchlistUser", foreign_keys="WatchlistUser.followed_user_id",
                                   back_populates="followed_user", cascade="all, delete-orphan")
-    purchases = relationship("Transaction", foreign_keys="Transaction.buyer_id", back_populates="buyer",
-                             cascade="all, delete-orphan")
-    sales = relationship("Transaction", foreign_keys="Transaction.seller_id", back_populates="seller",
-                         cascade="all, delete-orphan")
+    purchases = relationship("Transaction", foreign_keys="Transaction.buyer_id",
+                             back_populates="buyer", cascade="all, delete-orphan")
+    sales = relationship("Transaction", foreign_keys="Transaction.seller_id",
+                         back_populates="seller", cascade="all, delete-orphan")
