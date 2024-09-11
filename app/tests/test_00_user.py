@@ -51,13 +51,15 @@ def create_user(username, password):
 
 
 @pytest.fixture
-def get_user():
-    return create_user("test1234", "test1234")
+def get_user_test():
+    username = "test1234"
+    password = "test1234"
+    return create_user(username=username, password=password)
 
 
-def test_get_user(get_user):
-    headers = get_user['headers']
-    user_id = get_user['user_data']['id']
+def test_get_user(get_user_test):
+    headers = get_user_test['headers']
+    user_id = get_user_test['user_data']['id']
     response = client.get(
         f"/users/{user_id}/",
         headers=headers
@@ -81,14 +83,14 @@ def test_get_user(get_user):
       "notification": True,
       "account_status": True,
       "id": user_id,
-      "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d70-889d-e5738feb4bd7"
-                              "_28_08_2024_19_13_36_default_profile_pic.jpg"
+      "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d70"
+                              "-889d-e5738feb4bd7_28_08_2024_19_13_36_default_profile_pic.jpg"
     }
 
 
-def test_failing_update_user(get_user):
-    headers = get_user['headers']
-    user_id = int(get_user['user_data']['id']) + 1
+def test_failing_update_user(get_user_test):
+    headers = get_user_test['headers']
+    user_id = int(get_user_test['user_data']['id']) + 1
     response = client.put(
         f"/users/{user_id}/",
         json={
@@ -108,9 +110,9 @@ def test_failing_update_user(get_user):
     }
 
 
-def test_update_user(get_user):
-    headers = get_user['headers']
-    user_id = get_user['user_data']['id']
+def test_update_user(get_user_test):
+    headers = get_user_test['headers']
+    user_id = get_user_test['user_data']['id']
     response = client.put(
         f"/users/{user_id}/",
         json={
@@ -143,6 +145,6 @@ def test_update_user(get_user):
         "notification": True,
         "account_status": True,
         "id": user_id,
-        "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d70-889d-e5738feb4bd7"
-                                "_28_08_2024_19_13_36_default_profile_pic.jpg"
+        "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d"
+                                "70-889d-e5738feb4bd7_28_08_2024_19_13_36_default_profile_pic.jpg"
     }

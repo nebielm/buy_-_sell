@@ -1,65 +1,22 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.tests.test_00_user import create_user
+from app.tests.test_00_user import get_user_test
+from app.tests.test_01_post import create_post
+from app.tests.test_03_message import get_user_1234
 
 
 client = TestClient(app)
 
 
-def get_access_token(username, password):
-    response = client.post(
-        "/token",
-        data={"username": username, "password": password}
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
+@pytest.fixture
+def get_user_seller(get_user_test):
+    return get_user_test
 
 
 @pytest.fixture
-def get_user_seller():
-    username = "test1234"
-    password = "test1234"
-    return create_user(username=username, password=password)
-
-
-@pytest.fixture
-def get_user_buyer():
-    username = "1234test"
-    password = "1234test"
-    return create_user(username=username, password=password)
-
-
-@pytest.fixture
-def create_post(get_user_seller):
-    headers_seller = get_user_seller["headers"]
-    user_id = get_user_seller["user_data"]["id"]
-    response = client.get(f"/users/{user_id}/posts/",
-                          headers=headers_seller
-                          )
-    to_delete = response.json()
-    if to_delete:
-        for post in to_delete:
-            post_id = post['id']
-            client.delete(f"/posts/{post_id}/",
-                          headers=headers_seller
-                          )
-    response = client.post(
-        f"/users/{user_id}/posts/",
-        json={
-          "title": "test1234",
-          "description": "test1234",
-          "price": 2.0,
-          "condition": "test1234",
-          "quantity": 10,
-          "status": "available",
-          "user_id": user_id,
-          "sub_category_id": 139
-        },
-        headers=headers_seller
-    )
-    assert response.status_code == 200
-    return response.json()
+def get_user_buyer(get_user_1234):
+    return get_user_1234
 
 
 @pytest.fixture
@@ -93,13 +50,16 @@ def test_get_transaction(create_transaction, get_user_buyer, get_user_seller):
 
     seller_id = create_transaction["seller_id"]
     headers_seller = get_user_seller["headers"]
-    response = client.get(f"/users/{seller_id}/post/{post_id}/transaction/", headers=headers_seller)
+    response = client.get(f"/users/{seller_id}/post/{post_id}/transaction/",
+                          headers=headers_seller)
     assert response.status_code == 200
     seller_response_data_post_id = response.json()
-    response = client.get(f"/users/{seller_id}/transaction/{transaction_id}/", headers=headers_seller)
+    response = client.get(f"/users/{seller_id}/transaction/{transaction_id}/",
+                          headers=headers_seller)
     assert response.status_code == 200
     response_seller_trans_id = response.json()
-    response = client.get(f"/users/{seller_id}/received_transaction/", headers=headers_seller)
+    response = client.get(f"/users/{seller_id}/received_transaction/",
+                          headers=headers_seller)
     assert response.status_code == 200
     response_get_received_trans = response.json()
 

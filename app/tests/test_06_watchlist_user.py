@@ -1,33 +1,20 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.tests.test_00_user import create_user
-
+from app.tests.test_00_user import get_user_test
+from app.tests.test_03_message import get_user_1234
 
 client = TestClient(app)
 
 
-def get_access_token(username, password):
-    response = client.post(
-        url="/token",
-        data={"username": username, "password": password}
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
+@pytest.fixture
+def get_following_user(get_user_test):
+    return get_user_test
 
 
 @pytest.fixture
-def get_following_user():
-    username = "test1234"
-    password = "test1234"
-    return create_user(username=username, password=password)
-
-
-@pytest.fixture
-def get_followed_user():
-    username = "1234test"
-    password = "1234test"
-    return create_user(username=username, password=password)
+def get_followed_user(get_user_1234):
+    return get_user_1234
 
 
 @pytest.fixture

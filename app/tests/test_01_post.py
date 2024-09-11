@@ -1,32 +1,15 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.tests.test_00_user import create_user
+from app.tests.test_00_user import get_user_test
 
 
 client = TestClient(app)
 
 
-def get_access_token(username, password):
-    response = client.post(
-        "/token",
-        data={"username": username, "password": password}
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
-
-
-@pytest.fixture
-def get_user():
-    username = "test1234"
-    password = "test1234"
-    return create_user(username=username, password=password)
-
-
-@pytest.fixture
-def create_post(get_user):
-    headers = get_user['headers']
-    user_id = get_user['user_data']['id']
+def create_a_post(user):
+    headers = user['headers']
+    user_id = user['user_data']['id']
     response = client.get(url=f"/users/{user_id}/posts/",
                           headers=headers
                           )
@@ -44,6 +27,7 @@ def create_post(get_user):
           "description": "test1234Post",
           "price": 2.0,
           "condition": "test1234Post",
+          "quantity": 10,
           "status": "available",
           "user_id": user_id,
           "sub_category_id": 139
@@ -54,8 +38,13 @@ def create_post(get_user):
     return response.json()
 
 
-def test_get_post(create_post, get_user):
-    headers = get_user['headers']
+@pytest.fixture
+def create_post(get_user_test):
+    return create_a_post(get_user_test)
+
+
+def test_get_post(create_post, get_user_test):
+    headers = get_user_test['headers']
     user_id = create_post["user_id"]
     response = client.get(
         f"/users/{user_id}/posts/",
@@ -71,7 +60,7 @@ def test_get_post(create_post, get_user):
         "description": "test1234Post",
         "price": 2.0,
         "condition": "test1234Post",
-        "quantity": 1,
+        "quantity": 10,
         "pick_up": False,
         "status": "available",
         "show_email": True,
@@ -83,8 +72,8 @@ def test_get_post(create_post, get_user):
     assert expected_response in response_data
 
 
-def test_failing_update_post(get_user):
-    headers = get_user['headers']
+def test_failing_update_post(get_user_test):
+    headers = get_user_test['headers']
     post_id = 0
     response = client.put(
         f"/posts/{post_id}/",
@@ -103,8 +92,8 @@ def test_failing_update_post(get_user):
     }
 
 
-def test_update_post(create_post, get_user):
-    headers = get_user['headers']
+def test_update_post(create_post, get_user_test):
+    headers = get_user_test['headers']
     user_id = create_post["user_id"]
     post_id = create_post['id']
     response = client.put(
@@ -127,7 +116,7 @@ def test_update_post(create_post, get_user):
       "description": "test1234Post",
       "price": 1.0,
       "condition": "test1234Post",
-      "quantity": 1,
+      "quantity": 10,
       "pick_up": False,
       "status": "available",
       "show_email": True,

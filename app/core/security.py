@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 import jwt
@@ -9,8 +11,6 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import user as s_user
 from app.models import user as m_user
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 

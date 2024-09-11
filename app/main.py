@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.database import engine, Base, get_db
-from app.routes import auth, user, post, message, pictures, transaction, watchlist_post, watchlist_user
+from app.routes import (auth, user, post, message, pictures, transaction,
+                        watchlist_post, watchlist_user)
 from app.models.parent_category import ParentCat
 from app.models.sub_category import SubCat
 from app.core.settings import OPENAPI_SCHEMA
@@ -14,8 +15,9 @@ def init_db():
     category_mapping = {
         "Car, Bike & Boat": [
             "Cars", "Auto Parts & Tires", "Boats & Boat Accessories", "Bicycles & Accessories",
-            "Motorcycles & Scooters", "Motorcycle Parts & Accessories", "Commercial Vehicles & Trailers",
-            "Repairs & Services", "Caravans & Mobile Homes", "Other Car, Bike & Boat"
+            "Motorcycles & Scooters", "Motorcycle Parts & Accessories",
+            "Commercial Vehicles & Trailers", "Repairs & Services", "Caravans & Mobile Homes",
+            "Other Car, Bike & Boat"
         ],
         "Electronics": [
             "Audio & Hi-Fi", "Electronics Services", "Photo", "Mobile & Telephone",
@@ -23,9 +25,9 @@ def init_db():
             "Tablets & Readers", "TV & Video", "Video Games", "Other Electronics"
         ],
         "Home & Garden": [
-            "Bathrooms", "Office", "Decoration", "Home & Garden Services", "Garden Accessories & Plants",
-            "Home Textiles", "DIY", "Kitchen & Dining Room", "Lamps & Lights", "Bedrooms", "Living Room",
-            "Other Home & Garden"
+            "Bathrooms", "Office", "Decoration", "Home & Garden Services",
+            "Garden Accessories & Plants", "Home Textiles", "DIY", "Kitchen & Dining Room",
+            "Lamps & Lights", "Bedrooms", "Living Room", "Other Home & Garden"
         ],
         "Jobs": [
             "Training", "Construction, Crafts & Production", "Office Work & Administration",
@@ -41,9 +43,9 @@ def init_db():
             "Travel & Event", "Animal Care & Training", "Transport & Moving", "Other Services"
         ],
         "Family, Child & Baby": [
-            "Elderly Care", "Baby & Children's Clothing", "Baby & Children's Shoes",
+            "Elderly Care", "Baby & Children's Clothing", "Baby & Children's Shoes", "Toys",
             "Baby Equipment", "Baby Carriers & Child Seats", "Babysitter & Child Care",
-            "Strollers & Buggies", "Children's Room Furniture", "Toys", "Other Family, Child & Baby"
+            "Strollers & Buggies", "Children's Room Furniture", "Other Family, Child & Baby"
         ],
         "Pets": [
             "Fish", "Dogs", "Cats", "Small Animals", "Livestock", "Horses",
