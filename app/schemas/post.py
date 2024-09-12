@@ -4,12 +4,18 @@ from pydantic import BaseModel, ConfigDict
 
 
 class StatusEnum(str, Enum):
+    """
+    Enumeration representing the possible status of a post.
+    """
     AVAILABLE = "available"
     RESERVED = "reserved"
     NOT_AVAILABLE = "not available"
 
 
 class PostBase(BaseModel):
+    """
+    Base schema for a post.
+    """
     title: str
     use_payment_option: bool | None = True
     price: float | None = 0.00
@@ -22,6 +28,9 @@ class PostBase(BaseModel):
 
 
 class PostUpdate(BaseModel):
+    """
+    Schema for updating an existing post.
+    """
     title: str | None = None
     use_payment_option: bool | None = None
     description: str | None = None
@@ -36,15 +45,24 @@ class PostUpdate(BaseModel):
 
 
 class PostCreateBase(PostBase):
+    """
+    Schema for creating a new post, which infos is given by user.
+    """
     sub_category_id: int | None = 139
     description: str | None = None
 
 
 class PostCreate(PostCreateBase):
+    """
+    Full Schema for creating a new post.
+    """
     user_id: int
 
 
 class PostInDB(PostBase):
+    """
+    Schema representing a post stored in the database.
+    """
     id: int
     user_id: int
     description: str
@@ -55,4 +73,7 @@ class PostInDB(PostBase):
 
 
 class Post(PostInDB):
+    """
+    Schema for returning post data in API responses.
+    """
     pass

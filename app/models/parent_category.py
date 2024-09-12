@@ -4,6 +4,9 @@ from app.database import Base
 
 
 class ParentCat(Base):
+    """
+    Represents a parent category entity in the database.
+    """
     __tablename__ = "parent_categories"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

@@ -6,12 +6,18 @@ from app.database import Base
 
 
 class TStatusEnum(str, Enum):
+    """
+    Enumeration representing the possible statuses of an item.
+    """
     IN_PROGRESS = "in_progress"
     SUCCESSFUL = "successful"
     DECLINED = "declined"
 
 
 class Transaction(Base):
+    """
+    Represents a Transaction in the database.
+    """
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -30,6 +36,10 @@ class Transaction(Base):
 
 @listens_for(Transaction, 'before_update')
 def update_last_status_change(mapper, connection, target):
+    """
+    Listener function that updates the `last_status_change` field of a Transaction
+    entity before an update occurs, if the status has changed.
+    """
     target_id = target.id
     previous_transaction = connection.execute(
         mapper.local_table.select()

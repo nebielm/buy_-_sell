@@ -16,6 +16,9 @@ def create_transaction(user_id: int, post_id: int,
                        transaction_base: s_transaction.TransactionCreateBase,
                        db: Session = Depends(get_db),
                        current_user: m_user.User = Depends(get_current_user)):
+    """
+    Create a new transaction for purchasing a post.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -53,6 +56,9 @@ def create_transaction(user_id: int, post_id: int,
             response_model=list[s_transaction.Transaction])
 def get_transaction_by_post_id(user_id: int, post_id: int, db: Session = Depends(get_db),
                                current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all transactions for a specific post.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -78,6 +84,9 @@ def get_transaction_by_post_id(user_id: int, post_id: int, db: Session = Depends
 def get_transaction_by_transaction_id(user_id: int, transaction_id: int,
                                       db: Session = Depends(get_db),
                                       current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve a specific transaction by its ID.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -100,6 +109,9 @@ def get_transaction_by_transaction_id(user_id: int, transaction_id: int,
 @router.get("/users/{user_id}/sent_transaction/", response_model=list[s_transaction.Transaction])
 def get_sent_transactions(user_id: int, db: Session = Depends(get_db),
                           current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all transactions where the user is the buyer.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -118,6 +130,9 @@ def get_sent_transactions(user_id: int, db: Session = Depends(get_db),
             response_model=list[s_transaction.Transaction])
 def get_received_transactions(user_id: int, db: Session = Depends(get_db),
                               current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all transactions where the user is the seller.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -136,6 +151,9 @@ def update_transaction(user_id: int, transaction_id: int,
                        new_transaction: s_transaction.TransactionUpdate,
                        db: Session = Depends(get_db),
                        current_user: m_user.User = Depends(get_current_user)):
+    """
+    Update an existing transaction.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -172,6 +190,9 @@ def update_transaction(user_id: int, transaction_id: int,
 @router.delete("/users/{user_id}/transaction/{transaction_id}/")
 def delete_transaction(user_id: int, transaction_id: int, db: Session = Depends(get_db),
                        current_user: m_user.User = Depends(get_current_user)):
+    """
+    Delete a specific transaction.
+    """
     if user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Authentication failed or "

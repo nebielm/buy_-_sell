@@ -4,6 +4,9 @@ from app.database import Base
 
 
 class User(Base):
+    """
+    Represents a User in the database.
+    """
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

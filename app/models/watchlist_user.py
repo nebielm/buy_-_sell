@@ -4,6 +4,9 @@ from app.database import Base
 
 
 class WatchlistUser(Base):
+    """
+    Represents a Watchlist User Record in the database.
+    """
     __tablename__ = "watchlist_user"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

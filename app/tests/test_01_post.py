@@ -7,7 +7,10 @@ from app.tests.test_00_user import get_user_test
 client = TestClient(app)
 
 
-def create_a_post(user):
+def create_a_post(user: dict):
+    """
+    Create a post for a given user, ensuring no existing posts are present.
+    """
     headers = user['headers']
     user_id = user['user_data']['id']
     response = client.get(url=f"/users/{user_id}/posts/",
@@ -39,11 +42,17 @@ def create_a_post(user):
 
 
 @pytest.fixture
-def create_post(get_user_test):
+def create_post(get_user_test: dict):
+    """
+    Fixture for creating a post as part of the test setup.
+    """
     return create_a_post(get_user_test)
 
 
-def test_get_post(create_post, get_user_test):
+def test_get_post(create_post: dict, get_user_test: dict):
+    """
+    Test case for retrieving a post by a user.
+    """
     headers = get_user_test['headers']
     user_id = create_post["user_id"]
     response = client.get(
@@ -72,7 +81,10 @@ def test_get_post(create_post, get_user_test):
     assert expected_response in response_data
 
 
-def test_failing_update_post(get_user_test):
+def test_failing_update_post(get_user_test: dict):
+    """
+    Test case for attempting to update a non-existent post.
+    """
     headers = get_user_test['headers']
     post_id = 0
     response = client.put(
@@ -92,7 +104,10 @@ def test_failing_update_post(get_user_test):
     }
 
 
-def test_update_post(create_post, get_user_test):
+def test_update_post(create_post: dict, get_user_test: dict):
+    """
+    Test case for successfully updating a post.
+    """
     headers = get_user_test['headers']
     user_id = create_post["user_id"]
     post_id = create_post['id']

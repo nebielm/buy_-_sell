@@ -23,6 +23,9 @@ BUCKET_NAME_POST_PIC = os.getenv("BUCKET_NAME_POST_PIC")
 @router.post("/users/", response_model=s_user.User)
 def create_user(image: Annotated[UploadFile, File()] = None, db: Session = Depends(get_db),
                 user: s_user.UserCreateBase = Depends(utils.parse_user_create_base)):
+    """
+    Create a new user.
+    """
     if c_user.get_user_by_email(db=db, user_email=user.email):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -49,11 +52,17 @@ def create_user(image: Annotated[UploadFile, File()] = None, db: Session = Depen
 
 @router.get("/users/", response_model=list[s_user.User])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Retrieve a list of users with pagination.
+    """
     return c_user.get_users(db=db, skip=skip, limit=limit)
 
 
 @router.get("/users/{user_id}/", response_model=s_user.User)
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a user by their ID.
+    """
     user = c_user.get_user_by_id(db=db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail=f"No user in DB with ID: {user_id}")
@@ -62,6 +71,9 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
 
 @router.get("/users/username/{username}/", response_model=s_user.User)
 def get_user_by_username(username: str, db: Session = Depends(get_db)):
+    """
+    Retrieve a user by their username.
+    """
     user = c_user.get_user_by_username(db=db, username=username)
     if not user:
         raise HTTPException(status_code=404, detail=f"No user in DB with username: {username}")
@@ -70,6 +82,9 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
 
 # @router.get("/users/email/{email}/", response_model=s_user.User)
 def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    """
+    Retrieve a user by their email address.
+    """
     user = c_user.get_user_by_email(db=db, user_email=email)
     if not user:
         raise HTTPException(status_code=404, detail=f"No user in DB with email: {email}")
@@ -81,6 +96,9 @@ def update_user(user_id: int, image: Annotated[UploadFile, File()] = None,
                 user: s_user.UserUpdateBase = Depends(utils.parse_user_update_base),
                 db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
+    """
+    Update an existing user's information.
+    """
     if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -115,6 +133,9 @@ def update_user(user_id: int, image: Annotated[UploadFile, File()] = None,
 @router.delete("/users/{user_id}/")
 def delete_user(user_id: int, db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
+    """
+    Delete a user and their associated posts and pictures.
+    """
     if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

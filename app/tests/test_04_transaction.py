@@ -11,16 +11,25 @@ client = TestClient(app)
 
 @pytest.fixture
 def get_user_seller(get_user_test):
+    """
+    Fixture for obtaining the seller user data.
+    """
     return get_user_test
 
 
 @pytest.fixture
 def get_user_buyer(get_user_1234):
+    """
+    Fixture for obtaining the buyer user data.
+    """
     return get_user_1234
 
 
 @pytest.fixture
-def create_transaction(create_post, get_user_buyer):
+def create_transaction(create_post: dict, get_user_buyer: dict):
+    """
+    Fixture for creating a transaction between a buyer and a post.
+    """
     user_id = get_user_buyer["user_data"]["id"]
     headers_buyer = get_user_buyer["headers"]
     post_id = create_post["id"]
@@ -33,7 +42,10 @@ def create_transaction(create_post, get_user_buyer):
     return response.json()
 
 
-def test_get_transaction(create_transaction, get_user_buyer, get_user_seller):
+def test_get_transaction(create_transaction: dict, get_user_buyer: dict, get_user_seller: dict):
+    """
+    Test case for retrieving and verifying transaction details from both buyer's and seller's perspectives.
+    """
     buyer_id = create_transaction["buyer_id"]
     headers_buyer = get_user_buyer["headers"]
     post_id = create_transaction["post_id"]
@@ -70,7 +82,10 @@ def test_get_transaction(create_transaction, get_user_buyer, get_user_seller):
     assert response_get_send_trans == response_get_received_trans
 
 
-def test_failed_update_transaction(create_transaction, get_user_buyer):
+def test_failed_update_transaction(create_transaction: dict, get_user_buyer: dict):
+    """
+    Test case for attempting to update a transaction with various invalid and valid inputs.
+    """
     user_id = create_transaction["buyer_id"]
     headers_buyer = get_user_buyer["headers"]
     transaction_id = create_transaction["id"]

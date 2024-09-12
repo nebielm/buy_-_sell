@@ -10,12 +10,18 @@ client = TestClient(app)
 
 @pytest.fixture
 def get_user_1234():
+    """
+    Fixture for creating a test user with username and password: '1234test'.
+    """
     username = "1234test"
     password = "1234test"
     return create_user(username=username, password=password)
 
 
-def test_failing_to_create_message(create_post, get_user_1234, get_user_test):
+def test_failing_to_create_message(create_post: dict, get_user_1234: dict, get_user_test: dict):
+    """
+    Test case for failing to create a message due to insufficient permissions.
+    """
     receiver_id = get_user_1234["user_data"]["id"]
     headers_receiver = get_user_test["headers"]
     user_id = create_post['user_id']
@@ -32,7 +38,10 @@ def test_failing_to_create_message(create_post, get_user_1234, get_user_test):
 
 
 @pytest.fixture
-def create_first_message(create_post, get_user_1234):
+def create_first_message(create_post: dict, get_user_1234: dict):
+    """
+    Fixture for creating the first test message.
+    """
     user_id = get_user_1234['user_data']['id']
     headers_sender = get_user_1234["headers"]
     post_id = create_post['id']
@@ -49,7 +58,10 @@ def create_first_message(create_post, get_user_1234):
 
 
 @pytest.fixture
-def create_second_message(create_post, get_user_1234, get_user_test):
+def create_second_message(create_post: dict, get_user_1234: dict, get_user_test: dict):
+    """
+    Fixture for creating the second test message.
+    """
     receiver_id = get_user_1234['user_data']['id']
     headers_receiver = get_user_test["headers"]
     user_id = create_post['user_id']
@@ -66,8 +78,11 @@ def create_second_message(create_post, get_user_1234, get_user_test):
     return response.json()
 
 
-def test_get_created_message(create_first_message, create_second_message,
-                             get_user_1234, get_user_test):
+def test_get_created_message(create_first_message: dict, create_second_message: dict,
+                             get_user_1234: dict, get_user_test: dict):
+    """
+    Test case for retrieving and comparing created messages.
+    """
     user_id = create_first_message["sender_id"]
     post_id = create_first_message["post_id"]
     headers_sender = get_user_1234["headers"]
@@ -87,7 +102,10 @@ def test_get_created_message(create_first_message, create_second_message,
     assert sorted_first_response == sorted_second_response
 
 
-def test_update_message(create_post, create_first_message, get_user_1234):
+def test_update_message(create_post: dict, create_first_message: dict, get_user_1234: dict):
+    """
+    Test case for updating an existing message.
+    """
     user_id = create_first_message['sender_id']
     headers_sender = get_user_1234["headers"]
     message_id = create_first_message['id']

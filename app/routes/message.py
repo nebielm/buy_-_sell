@@ -14,6 +14,9 @@ router = APIRouter()
 def create_message(user_id: int, post_id: int, base_message: s_message.MessageCreateBase,
                    db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
+    """
+    Create a new message for a given post and user.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -54,21 +57,30 @@ def create_message(user_id: int, post_id: int, base_message: s_message.MessageCr
 @router.get("/users/{user_id}/post/{post_id}/message", response_model=list[s_message.Message])
 def get_my_messages_by_post(user_id: int, post_id: int, db: Session = Depends(get_db),
                             current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all messages related to a specific post for a given user.
+    """
     if user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Authentication failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed"
+        )
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Post in URL path does not exist in DB")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post in URL path does not exist in DB"
+        )
     messages_by_post = c_message.get_message_by_post_id(db=db, post_id=post_id)
     my_messages_by_post = []
     for message in messages_by_post:
         if user_id in (message.sender_id, message.receiver_id):
             my_messages_by_post.append(message)
     if not my_messages_by_post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="No messages found for the user related to this post.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No messages found for the user related to this post."
+        )
     return my_messages_by_post
 
 
@@ -76,9 +88,14 @@ def get_my_messages_by_post(user_id: int, post_id: int, db: Session = Depends(ge
 def get_all_my_messages(user_id: int, db: Session = Depends(get_db),
                         query: str = Query(enum=["sent", "received", "both"], default="both"),
                         current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all messages for a given user based on the specified query.
+    """
     if user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Authentication failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed"
+        )
     sent_messages = c_message.get_message_by_sender_id(db=db, sender_id=user_id)
     received_messages = c_message.get_message_by_receiver_id(db=db, receiver_id=user_id)
     if query == "sent":
@@ -92,6 +109,9 @@ def get_all_my_messages(user_id: int, db: Session = Depends(get_db),
 def update_message(user_id: int, message_id: int, new_message: s_message.MessageUpdate,
                    db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
+    """
+    Update a specific message for a given user.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -106,8 +126,10 @@ def update_message(user_id: int, message_id: int, new_message: s_message.Message
     post_messages = c_message.get_message_by_post_id(db=db, post_id=db_message.post_id)
     for message in post_messages:
         if message.last_message_change > db_message.last_message_change:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                                detail="Given Message ID not last message in conversation")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Given Message ID not last message in conversation"
+            )
     print(db_message.last_message_change)
     return c_message.update_message(db=db, message_id=message_id, new_message=new_message)
 
@@ -115,9 +137,14 @@ def update_message(user_id: int, message_id: int, new_message: s_message.Message
 @router.delete("/users/{user_id}/messages/{message_id}/")
 def delete_message(user_id: int, message_id: int, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
+    """
+    Delete a specific message for a given user.
+    """
     if user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Authentication failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed"
+        )
     db_message = c_message.get_message_by_id(db=db, message_id=message_id)
     if db_message.sender_id != user_id:
         raise HTTPException(
@@ -127,6 +154,8 @@ def delete_message(user_id: int, message_id: int, db: Session = Depends(get_db),
     post_messages = c_message.get_message_by_post_id(db=db, post_id=db_message.post_id)
     for message in post_messages:
         if message.last_message_change > db_message.last_message_change:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                                detail="Given Message ID not last message in conversation")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Given Message ID not last message in conversation"
+            )
     return c_message.delete_message(db=db, message_id=message_id)

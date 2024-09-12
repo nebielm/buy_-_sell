@@ -3,6 +3,9 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class UserBase(BaseModel):
+    """
+    Base schema for a user.
+    """
     first_name: str
     last_name: str
     birthday: date
@@ -20,6 +23,9 @@ class UserBase(BaseModel):
 
 
 class UserUpdateBase(BaseModel):
+    """
+    Base Schema for updating a user.
+    """
     first_name: str | None = None
     last_name: str | None = None
     birthday: date | None = None
@@ -38,18 +44,30 @@ class UserUpdateBase(BaseModel):
 
 
 class UserUpdate(UserUpdateBase):
+    """
+    Full Schema for updating a user.
+    """
     profile_picture_path: str
 
 
 class UserCreateBase(UserBase):
+    """
+    Base Schema for creating a new user.
+    """
     password: str
 
 
 class UserCreate(UserCreateBase):
+    """
+    Full Schema for creating a new user.
+    """
     profile_picture_path: str
 
 
 class UserInDBBase(UserBase):
+    """
+    Base Schema representing a user stored in the database.
+    """
     id: int
     created_at: datetime
     profile_picture_path: str
@@ -58,8 +76,14 @@ class UserInDBBase(UserBase):
 
 
 class User(UserInDBBase):
+    """
+    Schema for returning transaction data in API responses.
+    """
     pass
 
 
 class UserInDB(UserInDBBase):
+    """
+    Full Schema representing a user stored in the database.
+    """
     hashed_password: str

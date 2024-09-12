@@ -18,6 +18,9 @@ MEGABYTE = 1024 * 1024
 
 
 def generate_description(keywords, parameters):
+    """
+    Generate a post description based on the provided keywords and parameters.
+    """
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -34,11 +37,17 @@ def generate_description(keywords, parameters):
 
 
 def generate_download_link(image_name):
+    """
+    Generate a download link for a file stored in S3.
+    """
     return f"https://buysellusers.s3.amazonaws.com/{image_name}"
 
 
 def upload_file(local_file: Annotated[UploadFile, File()], bucket_name,
                 pic_name=None):
+    """
+    Upload a file to an S3 bucket and return a download link.
+    """
     s3_client = boto3.client(
         service_name='s3',
         region_name='eu-north-1',
@@ -70,6 +79,9 @@ def upload_file(local_file: Annotated[UploadFile, File()], bucket_name,
 
 
 def delete_image_from_s3(object_name, bucket_name):
+    """
+    Delete an image file from an S3 bucket.
+    """
     s3_client = boto3.client(
         service_name='s3',
         region_name='eu-north-1',
@@ -103,6 +115,9 @@ def parse_user_create_base(
     account_status: bool | None = Form(True),
     password: str = Form(...)
 ) -> s_user.UserCreateBase:
+    """
+    Parse user creation data from form fields and return a UserCreateBase instance.
+    """
     return s_user.UserCreateBase(**locals())
 
 
@@ -123,5 +138,8 @@ def parse_user_update_base(
     account_status: bool | None = Form(None),
     password: str | None = Form(None)
 ) -> s_user.UserUpdateBase:
+    """
+    Parse user update data from form fields and return a UserUpdateBase instance.
+    """
     update_data = {key: value for key, value in locals().items() if value is not None}
     return s_user.UserUpdateBase(**update_data)

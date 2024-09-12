@@ -23,6 +23,9 @@ def create_picture(image: Annotated[UploadFile, File()],
                    user_id: int, post_id: int,
                    db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
+    """
+    Upload a new picture for a specific post and user.
+    """
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
         raise HTTPException(
@@ -47,6 +50,9 @@ def create_picture(image: Annotated[UploadFile, File()],
 
 @router.get("/post/{post_id}/picture/", response_model=list[s_picture.Picture])
 def get_pictures_by_post(post_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve all pictures associated with a specific post.
+    """
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -56,6 +62,9 @@ def get_pictures_by_post(post_id: int, db: Session = Depends(get_db)):
 
 @router.get("/picture/{picture_id}/", response_model=s_picture.Picture)
 def get_picture_by_id(picture_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a specific picture by its ID.
+    """
     db_picture = c_picture.get_picture_by_id(db=db, picture_id=picture_id)
     if not db_picture:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -67,6 +76,9 @@ def get_picture_by_id(picture_id: int, db: Session = Depends(get_db)):
 def update_picture(image: Annotated[UploadFile, File()], user_id: int,
                    picture_id: int, db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
+    """
+    Update an existing picture for a specific user.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -96,6 +108,9 @@ def update_picture(image: Annotated[UploadFile, File()], user_id: int,
 def delete_picture(user_id: int, picture_id: int,
                    db: Session = Depends(get_db),
                    current_user: m_user.User = Depends(get_current_user)):
+    """
+    Delete a specific picture for a user.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -3,6 +3,9 @@ from pydantic import BaseModel, ConfigDict
 
 
 class CategoryEnum(str, Enum):
+    """
+    Enumeration representing different Parent categories of items or services.
+    """
     CAR_BIKE_BOAT = "Car, Bike & Boat"
     ELECTRONICS = "Electronics"
     HOME_GARDEN = "Home & Garden"
@@ -22,22 +25,37 @@ class CategoryEnum(str, Enum):
 
 
 class ParentCatBase(BaseModel):
+    """
+    Base schema for a parent category.
+    """
     title: CategoryEnum | None = CategoryEnum.UNDEFINED
 
 
 class ParentCatUpdate(BaseModel):
+    """
+    Schema for updating a parent category.
+    """
     title: CategoryEnum
 
 
 class ParentCatCreate(ParentCatBase):
+    """
+    Schema for creating a new parent category.
+    """
     pass
 
 
 class ParentCatInDB(ParentCatBase):
+    """
+    Schema representing a parent category stored in the database.
+    """
     id: int
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class ParentCat(ParentCatInDB):
+    """
+    Schema for returning parent category data in API responses.
+    """
     pass

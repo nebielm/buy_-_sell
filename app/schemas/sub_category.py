@@ -83,6 +83,9 @@ category_mapping = {
 
 
 def get_valid_titles():
+    """
+    Returns a set of all valid sub-category titles based on the category mapping.
+    """
     valid_titles = set()
     for sub_cat_list in category_mapping.values():
         for title in sub_cat_list:
@@ -91,6 +94,9 @@ def get_valid_titles():
 
 
 def validate_title(sub_cat_title):
+    """
+    Validates the given sub-category title against the set of valid titles.
+    """
     valid_titles = get_valid_titles()
     if sub_cat_title not in valid_titles:
         raise ValueError(f"Invalid title '{sub_cat_title}'. Must be one of {valid_titles}")
@@ -98,6 +104,9 @@ def validate_title(sub_cat_title):
 
 
 def validate_parent_id(sub_cat_title, parent_id):
+    """
+    Validates the parent category ID for the given sub-category title.
+    """
     for parent, sub_cat_list in category_mapping.items():
         for sub_cat in sub_cat_list:
             if sub_cat_title == sub_cat:
@@ -107,39 +116,63 @@ def validate_parent_id(sub_cat_title, parent_id):
 
 
 class SubCatBase(BaseModel):
+    """
+    Base schema for sub-categories containing common fields.
+    """
     title: str | None = "Undefined"
 
     @model_validator(mode='before')
     def check_valid_title(cls, values):
+        """
+        Validator to check if the provided title is valid.
+        """
         title = values.get('title')
         return validate_title(title)
 
 
 class SubCatUpdate(BaseModel):
+    """
+    Schema for updating a sub-category.
+    """
     title: str
 
     @model_validator(mode='before')
     def check_valid_title(cls, values):
+        """
+        Validator to check if the provided title is valid.
+        """
         title = values.get('title')
         return validate_title(title)
 
 
 class SubCatCreate(SubCatBase):
+    """
+    Schema for creating a new sub-category.
+    """
     parent_id: int
 
     @model_validator(mode='before')
     def check_valid_parent_id(cls, values):
+        """
+        Validator to check if the parent ID is valid for the provided title.
+        """
         parent_id = values.get('parent_id')
         sub_cat_title = values.get('title')
         return validate_parent_id(sub_cat_title, parent_id)
 
 
 class SubCatInDB(SubCatBase):
+    """
+    Schema representing a sub-category stored in the database.
+    """
     id: int
     parent_id: int
 
     @model_validator(mode='before')
     def check_valid_parent_id(cls, values):
+        """
+        Validator to check if the parent ID is valid for the provided title.
+        """
         parent_id = values.get('parent_id')
         sub_cat_title = values.get('title')
         return validate_parent_id(sub_cat_title, parent_id)
@@ -148,4 +181,7 @@ class SubCatInDB(SubCatBase):
 
 
 class SubCat(SubCatInDB):
+    """
+    Schema for returning sub-category data in API responses.
+    """
     pass

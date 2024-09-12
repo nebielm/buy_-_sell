@@ -14,6 +14,9 @@ router = APIRouter()
 @router.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                                  db: Annotated[Session, Depends(get_db)]) -> Token:
+    """
+    Generate an access token.
+    """
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -29,4 +32,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 @router.get("/users/me", response_model=s_user.User)
 async def read_users_me(current_user: Annotated[s_user.User, Depends(get_current_active_user)]):
+    """
+    Retrieve the current logged-in user's information.
+    """
     return current_user

@@ -13,6 +13,9 @@ router = APIRouter()
 @router.post("/user/{user_id}/watchlist/post/{post_id}/", response_model=s_watch_post.WatchPost)
 def create_watch_post_record(user_id: int, post_id: int, db: Session = Depends(get_db),
                              current_user: m_user.User = Depends(get_current_user)):
+    """
+    Create a watchlist entry for a post by a user.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -38,6 +41,9 @@ def create_watch_post_record(user_id: int, post_id: int, db: Session = Depends(g
             response_model=list[s_watch_post.WatchPost])
 def get_watchlist_post_by_followed_post(user_id: int, post_id: int, db: Session = Depends(get_db),
                                         current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all watchlist entries for a specific post followed by a user.
+    """
     if user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Authentication failed")
@@ -60,6 +66,9 @@ def get_watchlist_post_by_followed_post(user_id: int, post_id: int, db: Session 
 @router.get("/user/{user_id}/watchlist/", response_model=list[s_watch_post.WatchPost])
 def get_watchlist_post_by_following_user(user_id: int, db: Session = Depends(get_db),
                                          current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve all watchlist entries for a user.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -79,6 +88,9 @@ def get_watchlist_post_by_following_user(user_id: int, db: Session = Depends(get
 def get_watch_post_record_by_watch_post_id(user_id: int, watch_post_id: int,
                                            db: Session = Depends(get_db),
                                            current_user: m_user.User = Depends(get_current_user)):
+    """
+    Retrieve a specific watchlist entry by its ID.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -96,6 +108,9 @@ def get_watch_post_record_by_watch_post_id(user_id: int, watch_post_id: int,
 @router.delete("/user/{user_id}/watchlist/{watch_post_id}/")
 def delete_watch_post_record(user_id: int, watch_post_id: int, db: Session = Depends(get_db),
                              current_user: m_user.User = Depends(get_current_user)):
+    """
+    Delete a watchlist entry by its ID.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

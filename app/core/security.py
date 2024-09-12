@@ -20,11 +20,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 class Token(BaseModel):
+    """
+    Schema representing a token.
+    """
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
+    """
+    Schema representing token data.
+    """
     username: str | None = None
 
 
@@ -33,18 +39,30 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_password_hashed(plain_password: str):
+    """
+    Hashes a plain text password using bcrypt.
+    """
     return pwd_context.hash(plain_password)
 
 
 def verify_password(plain_password: str, hashed_password: str):
+    """
+    Verifies that a plain text password matches the hashed password.
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_user(db: Annotated[Session, Depends(get_db)], username: str):
+    """
+    Retrieves a user from the database by their username.
+    """
     return db.query(m_user.User).filter(m_user.User.username == username).first()
 
 
 def authenticate_user(db: Annotated[Session, Depends(get_db)], username: str, plain_password: str):
+    """
+    Authenticates a user by verifying their username and password.
+    """
     user = get_user(db, username)
     if not user:
         return False
@@ -54,6 +72,9 @@ def authenticate_user(db: Annotated[Session, Depends(get_db)], username: str, pl
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """
+    Creates a JWT access token with an expiration time.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -66,6 +87,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
                            db: Annotated[Session, Depends(get_db)]):
+    """
+    Retrieves the current user based on the provided JWT token.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -86,6 +110,9 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 async def get_current_active_user(current_user: Annotated[s_user.User, Depends(get_current_user)]):
+    """
+    Ensures the current user is active.
+    """
     if current_user.account_status:
         return current_user
     raise HTTPException(status_code=400, detail="Inactive user")

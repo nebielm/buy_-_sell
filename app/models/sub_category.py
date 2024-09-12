@@ -4,6 +4,9 @@ from app.database import Base
 
 
 class SubCat(Base):
+    """
+    Represents a Sub Category in the database.
+    """
     __tablename__ = "sub_categories"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

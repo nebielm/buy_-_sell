@@ -6,12 +6,18 @@ from app.database import Base
 
 
 class StatusEnum(str, Enum):
+    """
+    Enumeration representing the possible statuses of an item.
+    """
     AVAILABLE = "available"
     RESERVED = "reserved"
     NOT_AVAILABLE = "not available"
 
 
 class Post(Base):
+    """
+    Represents a post entity in the database.
+    """
     __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

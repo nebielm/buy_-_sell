@@ -4,6 +4,9 @@ from app.database import Base
 
 
 class Message(Base):
+    """
+    Represents a message entity in the database.
+    """
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

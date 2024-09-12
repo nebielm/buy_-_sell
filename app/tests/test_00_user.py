@@ -6,7 +6,10 @@ from app.main import app
 client = TestClient(app)
 
 
-def get_access_token(username, password):
+def get_access_token(username: str, password: str):
+    """
+    Obtain an access token for a given username and password.
+    """
     response = client.post(
         "/token",
         data={"username": username, "password": password}
@@ -15,7 +18,10 @@ def get_access_token(username, password):
     return response.json()["access_token"]
 
 
-def create_user(username, password):
+def create_user(username: str, password: str):
+    """
+    Create a new user or return the existing user data if the user already exists.
+    """
     response_username = client.get(f"/users/username/{username}/")
     if response_username.status_code == 200:
         response_data = response_username.json()
@@ -52,12 +58,18 @@ def create_user(username, password):
 
 @pytest.fixture
 def get_user_test():
+    """
+    Fixture for creating a test user and providing authentication headers.
+    """
     username = "test1234"
     password = "test1234"
     return create_user(username=username, password=password)
 
 
-def test_get_user(get_user_test):
+def test_get_user(get_user_test: dict):
+    """
+    Test case for retrieving user details.
+    """
     headers = get_user_test['headers']
     user_id = get_user_test['user_data']['id']
     response = client.get(
@@ -88,7 +100,10 @@ def test_get_user(get_user_test):
     }
 
 
-def test_failing_update_user(get_user_test):
+def test_failing_update_user(get_user_test: dict):
+    """
+    Test case for attempting to update a user with incorrect authentication.
+    """
     headers = get_user_test['headers']
     user_id = int(get_user_test['user_data']['id']) + 1
     response = client.put(
@@ -110,7 +125,10 @@ def test_failing_update_user(get_user_test):
     }
 
 
-def test_update_user(get_user_test):
+def test_update_user(get_user_test: dict):
+    """
+    Test case for successfully updating user details.
+    """
     headers = get_user_test['headers']
     user_id = get_user_test['user_data']['id']
     response = client.put(

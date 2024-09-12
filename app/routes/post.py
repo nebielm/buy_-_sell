@@ -23,6 +23,9 @@ BUCKET_NAME = os.getenv("BUCKET_NAME_POST_PIC")
 def create_post(user_id: int, post: s_post.PostCreateBase, keywords: str | None = None,
                 db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
+    """
+    Create a new post for a specific user. Automatically generates a description if not provided.
+    """
     if user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -43,6 +46,9 @@ def create_post(user_id: int, post: s_post.PostCreateBase, keywords: str | None 
 
 @router.get("/users/{user_id}/posts/", response_model=list[s_post.Post])
 def get_post_by_user(user_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve all posts created by a specific user.
+    """
     if not c_user.get_user_by_id(db, user_id=user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -53,6 +59,9 @@ def get_post_by_user(user_id: int, db: Session = Depends(get_db)):
 
 @router.get("/posts/sub_cat/{sub_cat}/", response_model=list[s_post.Post])
 def get_post_by_sub_cat(sub_cat_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve all posts in a specific sub category.
+    """
     posts = c_post.get_post_by_sub_cat(db=db, sub_cat_id=sub_cat_id)
     if not posts:
         raise HTTPException(
@@ -64,6 +73,9 @@ def get_post_by_sub_cat(sub_cat_id: int, db: Session = Depends(get_db)):
 
 @router.get("/posts/{post_id}/", response_model=s_post.Post)
 def get_post_by_id(post_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a specific post by its ID.
+    """
     post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not post:
         raise HTTPException(
@@ -75,12 +87,18 @@ def get_post_by_id(post_id: int, db: Session = Depends(get_db)):
 
 @router.get("/posts/", response_model=list[s_post.Post])
 def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Retrieve a list of posts with pagination.
+    """
     return c_post.get_posts(db=db, skip=skip, limit=limit)
 
 
 @router.put("/posts/{post_id}/", response_model=s_post.Post)
 def update_post(post_id: int, post: s_post.PostUpdate, db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
+    """
+    Update an existing post.
+    """
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
         raise HTTPException(
@@ -98,6 +116,9 @@ def update_post(post_id: int, post: s_post.PostUpdate, db: Session = Depends(get
 @router.delete("/posts/{post_id}/")
 def delete_post(post_id: int, db: Session = Depends(get_db),
                 current_user: m_user.User = Depends(get_current_user)):
+    """
+    Delete a specific post.
+    """
     db_post = c_post.get_post_by_id(db=db, post_id=post_id)
     if not db_post:
         raise HTTPException(

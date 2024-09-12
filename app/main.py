@@ -10,6 +10,9 @@ app = FastAPI(openapi_schema=OPENAPI_SCHEMA)
 
 
 def init_db():
+    """
+    Initialize the database with predefined categories if not already populated.
+    """
     Base.metadata.create_all(bind=engine)
     db = next(get_db())
     category_mapping = {
