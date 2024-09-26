@@ -5,7 +5,9 @@ The "Buy and Sell" project is a web application built with FastAPI that allows u
 
 ## Live Demo
 
-You can view the live version of the application at: [https://buy-and-sell-uyoh.onrender.com](https://buy-and-sell-uyoh.onrender.com)
+You can view the live version of the application at: https://buyandsell-rt6n.onrender.com
+
+For the API Documentation visit : https://buyandsell-rt6n.onrender.com/docs
 
 ## Installation
 
@@ -189,6 +191,3 @@ For any inquiries or feedback, please contact:
 - **Email:** [nebielm@gmail.com](mailto:nebielmohammed@gmail.com)
 - **GitHub:** [nebielm](https://github.com/nebielm) -->
 
-## Acknowledgments
-
-Special thanks to everyone who contributed to the development of this project.
