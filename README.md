@@ -46,14 +46,14 @@ To run the project locally, follow these steps:
 
 ## Usage
 
-### Creating a Listing
+### Creating a Post
 1. **Sign up** or **Log in** to your account.
-2. Navigate to the "Create Listing" page.
+2. Navigate to the "Create Post" page.
 3. Fill in the item details, upload images, and set a price.
 4. Submit the form to post your listing.
 
 ### Browsing and Purchasing Items
-1. Browse the listings on the homepage or use the search function to find specific items.
+1. Browse the posts on the homepage or use the search function to find specific items.
 2. Click on an item to view details.
 3. If interested, contact the seller or proceed to purchase directly through the platform.
 
@@ -67,7 +67,10 @@ To run the project locally, follow these steps:
 ## Features
 
 - User authentication (Sign up, Log in, Log out)
-- Create, edit, and delete listings
+- Create, edit, and delete posts/ listings
+- AI-powered post description generation: 
+   Users provide keywords, and the integrated AI API automatically generates
+   a detailed and optimized description for the post/ listing.
 - Browse and search for items
 - Follow items to receive updates on changes
 - Follow users to stay informed about their new listings and activities
