@@ -5,8 +5,6 @@ The "Buy and Sell" project is a web application built with FastAPI that allows u
 
 ## Live Demo
 
-You can view the live version of the application at: https://buyandsell-rt6n.onrender.com
-
 For the API Documentation visit : https://buyandsell-rt6n.onrender.com/docs
 
 ## Installation
@@ -42,7 +40,6 @@ To run the project locally, follow these steps:
 
 6. **Access the application**:
     - Open your web browser and go to `http://127.0.0.1:8000`.
-    - To visit the FastAPI build-in documentation go to `http://127.0.0.1:8000/docs`
 
 ## Usage
 
@@ -191,6 +188,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 For any inquiries or feedback, please contact:
 
 - **Name:** Nebiel M
-- **Email:** [nebielm@gmail.com](mailto:nebielmohammed@gmail.com)
+- **Email:** [nebielm@gmail.com](mailto:nebielmohammed@hotmail.com)
 - **GitHub:** [nebielm](https://github.com/nebielm) -->
 

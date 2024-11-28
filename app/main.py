@@ -6,7 +6,8 @@ from app.models.parent_category import ParentCat
 from app.models.sub_category import SubCat
 from app.core.settings import OPENAPI_SCHEMA
 
-app = FastAPI(openapi_schema=OPENAPI_SCHEMA)
+app = FastAPI(openapi_schema=OPENAPI_SCHEMA,
+              docs_url="/")
 
 
 def init_db():
