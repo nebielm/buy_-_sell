@@ -5,7 +5,7 @@ The "Buy and Sell" project is a web application built with FastAPI that allows u
 
 ## Live Demo
 
-For the API Documentation visit : https://buyandsell-rt6n.onrender.com/docs
+For the API Documentation visit : https://buyandsell-rt6n.onrender.com/
 
 ## Installation
 
