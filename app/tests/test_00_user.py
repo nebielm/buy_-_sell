@@ -5,6 +5,20 @@ from app.main import app
 
 client = TestClient(app)
 
+PRIVATE_USER_FIELDS = {
+    "birthday", "email", "tel_number", "street", "house_number", "zip_code",
+    "city_town_village", "country", "notification"
+}
+
+
+def assert_public_user_contract(user_data: dict):
+    """Assert that a public response contains no private account fields."""
+    assert PRIVATE_USER_FIELDS.isdisjoint(user_data)
+    assert set(user_data) == {
+        "id", "first_name", "last_name", "username", "profile_picture_path",
+        "commercial_account", "created_at", "account_status"
+    }
+
 
 def get_access_token(username: str, password: str):
     """
@@ -68,7 +82,7 @@ def get_user_test():
 
 def test_get_user(get_user_test: dict):
     """
-    Test case for retrieving user details.
+    Test case for retrieving a public user profile without private fields.
     """
     headers = get_user_test['headers']
     user_id = get_user_test['user_data']['id']
@@ -78,26 +92,30 @@ def test_get_user(get_user_test: dict):
     )
     assert response.status_code == 200
     response_data = response.json()
-    response_data.pop("created_at", None)
-    assert response_data == {
-      "first_name": "test1234",
-      "last_name": "test1234",
-      "birthday": "2024-09-03",
-      "username": "test1234",
-      "email": "test1234@example.com",
-      "tel_number": "test1234",
-      "street": "test1234",
-      "house_number": "test1234",
-      "zip_code": "test1234",
-      "city_town_village": "test1234",
-      "country": "test1234",
-      "commercial_account": False,
-      "notification": True,
-      "account_status": True,
-      "id": user_id,
-      "profile_picture_path": "https://buysellusers.s3.eu-north-1.amazonaws.com/019199fa-8037-7d70"
-                              "-889d-e5738feb4bd7_28_08_2024_19_13_36_default_profile_pic.jpg"
-    }
+    assert_public_user_contract(response_data)
+    assert response_data["id"] == user_id
+    assert response_data["username"] == "test1234"
+
+
+def test_public_user_list_and_username_lookup_hide_private_fields(get_user_test: dict):
+    """Keep both other public user response paths on the reduced contract."""
+    user_id = get_user_test["user_data"]["id"]
+
+    list_response = client.get("/users/")
+    assert list_response.status_code == 200
+    listed_user = next(user for user in list_response.json() if user["id"] == user_id)
+    assert_public_user_contract(listed_user)
+
+    username_response = client.get("/users/username/test1234/")
+    assert username_response.status_code == 200
+    assert_public_user_contract(username_response.json())
+
+
+def test_current_user_keeps_private_account_fields(get_user_test: dict):
+    """An authenticated user can still retrieve their own complete account data."""
+    response = client.get("/users/me", headers=get_user_test["headers"])
+    assert response.status_code == 200
+    assert PRIVATE_USER_FIELDS.issubset(response.json())
 
 
 def test_failing_update_user(get_user_test: dict):

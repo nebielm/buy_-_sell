@@ -12,16 +12,22 @@ from app.schemas import user as s_user
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-
 MEGABYTE = 1024 * 1024
+AWS_REGION = "eu-north-1"
 
 
 def generate_description(keywords, parameters):
     """
     Generate a post description based on the provided keywords and parameters.
     """
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI description generation is unavailable: OPENAI_API_KEY is not configured."
+        )
     try:
+        client = OpenAI(api_key=api_key)
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -36,11 +42,11 @@ def generate_description(keywords, parameters):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def generate_download_link(image_name):
+def generate_download_link(image_name, bucket_name, region_name=AWS_REGION):
     """
     Generate a download link for a file stored in S3.
     """
-    return f"https://buysellusers.s3.amazonaws.com/{image_name}"
+    return f"https://{bucket_name}.s3.{region_name}.amazonaws.com/{image_name}"
 
 
 def upload_file(local_file: Annotated[UploadFile, File()], bucket_name,
@@ -50,7 +56,7 @@ def upload_file(local_file: Annotated[UploadFile, File()], bucket_name,
     """
     s3_client = boto3.client(
         service_name='s3',
-        region_name='eu-north-1',
+        region_name=AWS_REGION,
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.getenv("AWS_SECRET_KEY")
     )
@@ -69,7 +75,7 @@ def upload_file(local_file: Annotated[UploadFile, File()], bucket_name,
     try:
         s3_client.upload_fileobj(local_file.file, bucket_name, image_name)
         print(f'File {image_name} uploaded successfully.')
-        download_link = generate_download_link(image_name)
+        download_link = generate_download_link(image_name, bucket_name)
         return download_link
     except Exception as e:
         raise HTTPException(
@@ -84,7 +90,7 @@ def delete_image_from_s3(object_name, bucket_name):
     """
     s3_client = boto3.client(
         service_name='s3',
-        region_name='eu-north-1',
+        region_name=AWS_REGION,
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.getenv("AWS_SECRET_KEY")
     )

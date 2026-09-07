@@ -50,7 +50,7 @@ def create_user(image: Annotated[UploadFile, File()] = None, db: Session = Depen
     return c_user.create_user(db=db, user=user)
 
 
-@router.get("/users/", response_model=list[s_user.User])
+@router.get("/users/", response_model=list[s_user.PublicUser])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Retrieve a list of users with pagination.
@@ -58,7 +58,7 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return c_user.get_users(db=db, skip=skip, limit=limit)
 
 
-@router.get("/users/{user_id}/", response_model=s_user.User)
+@router.get("/users/{user_id}/", response_model=s_user.PublicUser)
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     """
     Retrieve a user by their ID.
@@ -69,7 +69,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     return user
 
 
-@router.get("/users/username/{username}/", response_model=s_user.User)
+@router.get("/users/username/{username}/", response_model=s_user.PublicUser)
 def get_user_by_username(username: str, db: Session = Depends(get_db)):
     """
     Retrieve a user by their username.

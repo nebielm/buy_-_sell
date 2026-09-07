@@ -82,6 +82,22 @@ class User(UserInDBBase):
     pass
 
 
+class PublicUser(BaseModel):
+    """
+    Public account information that is safe to expose in marketplace lookups.
+    """
+    id: int
+    first_name: str
+    last_name: str
+    username: str
+    profile_picture_path: str
+    commercial_account: bool
+    created_at: datetime
+    account_status: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class UserInDB(UserInDBBase):
     """
     Full Schema representing a user stored in the database.

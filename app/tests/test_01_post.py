@@ -81,6 +81,14 @@ def test_get_post(create_post: dict, get_user_test: dict):
     assert expected_response in response_data
 
 
+def test_get_posts_by_subcategory_path_parameter(create_post: dict):
+    """The subcategory identifier is consumed from the declared path parameter."""
+    sub_category_id = create_post["sub_category_id"]
+    response = client.get(f"/posts/sub_cat/{sub_category_id}/")
+    assert response.status_code == 200
+    assert create_post["id"] in {post["id"] for post in response.json()}
+
+
 def test_failing_update_post(get_user_test: dict):
     """
     Test case for attempting to update a non-existent post.

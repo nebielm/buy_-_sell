@@ -1,193 +1,219 @@
-# Buy and Sell
+# Buy & Sell
 
-## Description
-The "Buy and Sell" project is a web application built with FastAPI that allows users to create listings for items they want to sell and browse listings posted by others. The platform facilitates the buying and selling of various goods, offering a user-friendly interface for managing listings, contacting sellers, and processing transactions. Additionally, users can follow items and other users to receive updates and notifications.
+Buy & Sell is a REST API for a classified-listings marketplace. It brings together user accounts, item listings, listing-based conversations, watchlists, transaction records, image storage, and optional AI-assisted description generation in a single FastAPI application.
 
-## Live Demo
+This repository is a backend portfolio project. It demonstrates the core workflows and integration boundaries of a marketplace API; it is not presented as a complete payment or notification platform.
 
-For the API Documentation visit : https://buyandsell-rt6n.onrender.com/
+## What It Demonstrates
 
-## Installation
+- REST API design with FastAPI, Pydantic request/response models, and generated OpenAPI documentation
+- Relational marketplace modelling with SQLAlchemy and PostgreSQL
+- OAuth2 password-flow login, bcrypt password hashing, and time-limited JWT bearer tokens
+- Resource-level authorization for listing, message, image, transaction, and watchlist operations
+- AWS S3-backed profile and listing image workflows
+- A bounded OpenAI integration for generating a listing description when the seller omits one
+- API workflow tests and a PostgreSQL-backed GitHub Actions test job
 
-To run the project locally, follow these steps:
+## Architecture
 
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/nebielm/buy_-_sell.git
-    cd buy_-_sell
-    ```
+The application is a synchronous, layered monolith. FastAPI route modules validate HTTP input and enforce workflow rules, CRUD modules contain SQLAlchemy persistence operations, and Pydantic schemas define the API contracts. A shared SQLAlchemy session dependency connects both layers to PostgreSQL.
 
-2. **Create and activate a virtual environment**:
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    ```
+```mermaid
+flowchart LR
+    Client[API client] --> API[FastAPI routes]
+    API --> Auth[JWT auth dependency]
+    API --> Schemas[Pydantic schemas]
+    API --> CRUD[CRUD modules]
+    CRUD --> ORM[SQLAlchemy models]
+    ORM --> DB[(PostgreSQL)]
+    API --> S3[AWS S3\nimage storage]
+    API --> AI[OpenAI Chat Completions\ndescription generation]
+```
 
-3. **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+At application startup, SQLAlchemy creates missing tables and seeds the predefined parent/subcategory catalogue. The repository does not contain a migration system, so schema evolution is not versioned.
 
-4. **Set up the database** (if applicable):
-    ```bash
-    alembic upgrade head  # Run migrations if using Alembic for database migrations
-    ```
+## Key Features
 
-5. **Start the application**:
-    ```bash
-    uvicorn app.main:app --reload
-    ```
+- Account registration, profile updates, account deletion, login, and current-user lookup
+- Listing creation, browsing, category filtering, updates, deletion, availability status, quantity, pricing, and contact-preference fields
+- Profile-picture and listing-picture upload, replacement, and deletion through separate S3 bucket configuration
+- Buyer/seller conversations attached to a listing, including rules around who can initiate a conversation and which message can be edited or deleted
+- Listing and user watchlists with duplicate-follow prevention in the application layer
+- Buyer/seller transaction records with quantity and listing-price validation plus in-progress, successful, and declined states
+- AI-assisted listing-description generation when a create request does not provide a description
 
-6. **Access the application**:
-    - Open your web browser and go to `http://127.0.0.1:8000`.
+## Technical Highlights
 
-## Usage
+### Authentication and authorization
 
-### Creating a Post
-1. **Sign up** or **Log in** to your account.
-2. Navigate to the "Create Post" page.
-3. Fill in the item details, upload images, and set a price.
-4. Submit the form to post your listing.
+`POST /token` implements the OAuth2 password flow. Passwords are hashed with bcrypt through Passlib, and successful login returns an HS256 JWT with a 30-minute expiry. Protected operations resolve the current user from the bearer token and apply ownership or participant checks at the route boundary. Public user lookups return a reduced marketplace profile, while `/users/me` preserves the authenticated user's full account response.
 
-### Browsing and Purchasing Items
-1. Browse the posts on the homepage or use the search function to find specific items.
-2. Click on an item to view details.
-3. If interested, contact the seller or proceed to purchase directly through the platform.
+### Relational marketplace model
 
-### Following Items and Users
-1. **Follow Items**:
-   - While viewing an item, click the "Follow" button to receive notifications about updates to that item (e.g., price changes or new information).
-   
-2. **Follow Users**:
-   - Visit a user's profile and click the "Follow" button to receive updates about their new listings and activities.
+Nine SQLAlchemy tables represent users, posts, category hierarchies, pictures, messages, transactions, and the two watchlist relationships. ORM relationships and delete-orphan cascades keep dependent marketplace records tied to their owning user or listing.
 
-## Features
+### Listing-based messaging
 
-- User authentication (Sign up, Log in, Log out)
-- Create, edit, and delete posts/ listings
-- AI-powered post description generation: 
-   Users provide keywords, and the integrated AI API automatically generates
-   a detailed and optimized description for the post/ listing.
-- Browse and search for items
-- Follow items to receive updates on changes
-- Follow users to stay informed about their new listings and activities
-- Contact sellers via messaging
-- Secure payment processing
-- Save, update, and delete profile pictures and post images using AWS S3 buckets.
+Messages are associated with a sender, receiver, and listing. A prospective buyer must contact the seller first; the seller can then reply in that listing context. The API limits message edits and deletions to the sender's latest message associated with the listing.
 
-## AWS S3 Integration
+### Image lifecycle
 
-The application utilizes AWS S3 for managing image files:
+Image endpoints use Boto3 to upload and delete S3 objects. Uploads are limited to one megabyte and require an image content type. When no custom upload exists or the last listing image is removed, the current implementation falls back to historical default-image URLs.
 
-- **Profile Pictures**: Users can upload, update, and delete their profile pictures. These images are stored in AWS S3 buckets for scalability and reliability.
-- **Post Pictures**: Images associated with posts are also stored in AWS S3 buckets. This allows for efficient image management and retrieval.
+### Bounded AI assistance
 
-## Project Directory Structure
+When a listing is created without a description, the API sends the supplied keywords and listing fields to OpenAI's `gpt-3.5-turbo` chat-completions endpoint and stores the returned description. This is one optional listing workflow, not the application's decision-making core.
 
-Here is a high-level overview of the project directory structure:
+### Transaction workflow—not payment processing
 
+The transaction API persists buyer, seller, listing, quantity, price, and status records. It verifies that the buyer is not the seller, requested stock is available, and the submitted total matches listing price multiplied by quantity. There is no payment-provider integration, checkout session, webhook handling, fund capture, or marketplace settlement in this repository.
 
-    buy_and_sell/
-    │
-    ├── app/
-    │   ├── core/              # Core functionality and settings
-    │   │   ├── __init__.py 
-    │   │   ├── security.py
-    │   │   └── settings.py
-    │   │
-    │   ├── crud/              # CRUD functions
-    │   │   ├── __init__.py
-    │   │   ├── message.py
-    │   │   ├── parent_category.py
-    │   │   ├── pictures.py
-    │   │   ├── post.py
-    │   │   ├── sub_category.py
-    │   │   ├── transaction.py
-    │   │   ├── user.py
-    │   │   ├── watchlist_post.py
-    │   │   └── watchlist_user.py
-    │   │ 
-    │   ├── default_pictures/  # Default Pictures
-    │   │   ├── default_post_pic.jpg
-    │   │   └── default_profile_pic.jpg
-    │   │ 
-    │   ├── models/            # Database models
-    │   │   ├── __init__.py
-    │   │   ├── message.py
-    │   │   ├── parent_category.py
-    │   │   ├── pictures.py
-    │   │   ├── post.py
-    │   │   ├── sub_category.py
-    │   │   ├── transaction.py
-    │   │   ├── user.py
-    │   │   ├── watchlist_post.py
-    │   │   └── watchlist_user.py 
-    │   │    
-    │   ├── routes/           # Route definitions for API endpoints
-    │   │   ├── __init__.py
-    │   │   ├── auth.py
-    │   │   ├── message.py
-    │   │   ├── pictures.py
-    │   │   ├── post.py
-    │   │   ├── transaction.py
-    │   │   ├── user.py
-    │   │   ├── utils.py     # Utility functions for Picture Handeling with AWS used in pictures.py, users.py and post.py
-    │   │   ├── watchlist_post.py
-    │   │   └── watchlist_user.py
-    │   │
-    │   ├── schemas/           # Pydantic schemas for validation
-    │   │   ├── __init__.py
-    │   │   ├── message.py
-    │   │   ├── parent_category.py
-    │   │   ├── pictures.py
-    │   │   ├── post.py
-    │   │   ├── sub_category.py
-    │   │   ├── transaction.py
-    │   │   ├── user.py
-    │   │   ├── watchlist_post.py
-    │   │   └── watchlist_user.py
-    │   │   
-    │   ├── tests/           # Pydantic schemas for validation
-    │   │   ├── __init__.py
-    │   │   ├── test_message.py
-    │   │   ├── test_parent_category.py
-    │   │   ├── test_pictures.py
-    │   │   ├── test_post.py
-    │   │   ├── test_sub_category.py
-    │   │   ├── test_transaction.py
-    │   │   ├── test_user.py
-    │   │   ├── test_watchlist_post.py
-    │   │   └── test_watchlist_user.py
-    │   │   
-    │   ├── __init__.py  
-    │   ├── database.py 
-    │   └── main.py        
-    │
-    ├── requirements.txt       # Project dependencies
-    ├── .env                   # Environment variables
-    ├── .gitignore              # Git ignore file
-    └── README.md              # Project overview
+## Tech Stack
 
+| Area | Technology |
+| --- | --- |
+| API | Python 3.12, FastAPI |
+| Validation | Pydantic 2 |
+| Persistence | SQLAlchemy 2, PostgreSQL, psycopg2 |
+| Authentication | PyJWT, Passlib, bcrypt, OAuth2 bearer tokens |
+| Object storage | AWS S3 via Boto3 |
+| AI integration | OpenAI Python SDK, Chat Completions API |
+| Testing | pytest, FastAPI TestClient |
+| CI | GitHub Actions, PostgreSQL 16 service |
 
-<!--## Contributing
+## API Overview
 
-Contributions are welcome! To contribute:
+The API is organized around these domains:
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -m 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a Pull Request.
+| Domain | Responsibilities |
+| --- | --- |
+| Authentication | Issue bearer tokens and return the active user |
+| Users | Register, list, retrieve, update, and delete accounts |
+| Listings | Create and manage listings; browse globally, by seller, or by subcategory |
+| Pictures | Manage listing images; profile-image handling is part of user create/update |
+| Messages | Start and manage listing-specific buyer/seller conversations |
+| Transactions | Create, inspect, update, and delete internal transaction records |
+| Watchlists | Follow/unfollow listings and users, and query follow relationships |
 
-## License
+With the app running, interactive Swagger UI is served at [`http://127.0.0.1:8000/`](http://127.0.0.1:8000/). The generated OpenAPI document is available at [`http://127.0.0.1:8000/openapi.json`](http://127.0.0.1:8000/openapi.json).
 
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+## Project Structure
 
-## Contact Information
+```text
+.
+├── .github/workflows/ci.yml  # Python 3.12/PostgreSQL CI test job
+├── app/
+│   ├── core/                 # JWT/password handling and API configuration
+│   ├── crud/                 # SQLAlchemy query and persistence functions
+│   ├── models/               # Relational database models
+│   ├── routes/               # HTTP endpoints, authorization, and integrations
+│   ├── schemas/              # Pydantic API contracts
+│   ├── tests/                # API workflow tests
+│   ├── database.py           # Engine, session factory, and request dependency
+│   └── main.py               # App assembly, table creation, and category seeding
+├── requirements.txt
+└── README.md
+```
 
-For any inquiries or feedback, please contact:
+## Getting Started
 
-- **Name:** Nebiel M
-- **Email:** [nebielm@gmail.com](mailto:nebielmohammed@hotmail.com)
-- **GitHub:** [nebielm](https://github.com/nebielm) -->
+### Prerequisites
 
+- Python 3.12
+- PostgreSQL
+- OpenAI API credentials only when using AI-assisted description generation
+- AWS credentials and two S3 buckets when exercising image upload/delete flows
+
+### Installation
+
+1. Clone the repository and enter it:
+
+   ```bash
+   git clone https://github.com/nebielm/buy_-_sell.git
+   cd buy_-_sell
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+   On Windows PowerShell, activate it with `.venv\Scripts\Activate.ps1`.
+
+3. Install the pinned-compatible dependencies:
+
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+
+4. Create a PostgreSQL database, then create a local `.env` file in the repository root:
+
+   ```dotenv
+   SQLALCHEMY_DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/buy_sell
+   SECRET_KEY=replace-with-a-long-random-secret
+   # Optional: required only for AI-assisted description generation
+   OPENAI_API_KEY=replace-with-your-openai-api-key
+
+   # Optional: required only for profile/listing image upload and deletion
+   AWS_ACCESS_KEY_ID=replace-with-your-aws-access-key-id
+   AWS_SECRET_KEY=replace-with-your-aws-secret-access-key
+   BUCKET_NAME_PROFILE_PIC=replace-with-your-profile-image-bucket
+   BUCKET_NAME_POST_PIC=replace-with-your-listing-image-bucket
+   ```
+
+   `.env` is ignored by Git. Do not commit real credentials.
+
+5. Start the API:
+
+   ```bash
+   python -m uvicorn app.main:app --reload
+   ```
+
+On startup, the application creates any missing tables and seeds its category catalogue. There is no Alembic directory or migration command in this repository.
+
+## Environment Variables
+
+| Variable | Requirement | Purpose |
+| --- | --- | --- |
+| `SQLALCHEMY_DATABASE_URL` | Required | SQLAlchemy connection URL; PostgreSQL is the configured project/CI database |
+| `SECRET_KEY` | Required for authentication | Signs and validates HS256 access tokens |
+| `OPENAI_API_KEY` | AI integration | Lazily initializes the OpenAI client when description generation is requested |
+| `AWS_ACCESS_KEY_ID` | S3 integration | AWS credential used by image upload/delete operations |
+| `AWS_SECRET_KEY` | S3 integration | AWS secret used by image upload/delete operations |
+| `BUCKET_NAME_PROFILE_PIC` | Profile-image integration | Target bucket for profile images |
+| `BUCKET_NAME_POST_PIC` | Listing-image integration | Target bucket for listing images |
+
+The S3 client region is fixed to `eu-north-1` in the current implementation. The repository does not include an `.env.example`; the block above mirrors every environment variable read by the application.
+
+## Testing
+
+Run the API test suite with:
+
+```bash
+python -m pytest -q
+```
+
+The tests cover account/authentication flows, public-user privacy, listing reads and updates, conversation rules, transaction validation, listing/user watchlists, and the external-service boundaries. Local pytest runs force a temporary SQLite database even if the application `.env` points elsewhere. In GitHub Actions, tests accept only the existing PostgreSQL service on the local CI runner and reject non-local database hosts.
+
+No live S3 or OpenAI calls are made by the test suite. CI runs the tests on Python 3.12 against its existing PostgreSQL 16 service using repository secrets.
+
+## Project Status and Limitations
+
+This project is maintained primarily as a portfolio demonstration of backend API design, relational modelling, authorization rules, and external-service integration.
+
+- Database tables are created automatically at startup; there are no versioned migrations.
+- Transactions are domain records only. No external payment processor or money movement is implemented.
+- Watchlists record follow relationships but do not dispatch notifications.
+- The API has no frontend, Docker configuration, or current deployment configuration in the repository.
+- Live S3 and OpenAI calls require real service credentials; tests cover their local boundaries without contacting either service.
+- The two historical default-image S3 URLs currently return `404`. Bundled copies exist under `app/default_pictures/`, but the API does not currently serve them.
+
+## Author
+
+Nebiel Mohammed
+
+- [Portfolio](https://nebielm.github.io/nebielmohammed/)
+- [GitHub](https://github.com/nebielm)
+- [LinkedIn](https://www.linkedin.com/in/nebiel-mohammed-a43218302/)
